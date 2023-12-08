@@ -39,3 +39,44 @@ exports.getUsers = async (req, res, next) => {
         });
     }
 };
+
+// getting a specific user informations
+exports.getUser = async (req, res, next) => {
+    try {
+        // Retrieve the user record from Firebase Authentication
+        const userRecord = await admin.auth().getUser(req.params.uid);
+
+        // Retrieve the user data from Cloud Firestore
+        const usersRef = admin.firestore().collection("users");
+        const userDoc = await usersRef.doc(req.params.uid).get();
+        const userData = userDoc.data();
+
+        if (!userDoc.exists) {
+            return res.status(404).send({
+                message: "Cet utilisateur n'a pas été trouvé",
+            });
+        }
+
+        // Combine the user record and user data into a single object
+        const user = {
+            uid: userRecord.uid,
+            name: userData.name,
+            firstName: userData.firstName,
+            telephone: userData.telephone,
+            address: userData.address,
+            sexe: userData.sexe,
+            accountType: userData.role,
+            createdAt: userData.createdAt,
+            updatedAt: userData.updatedAt,
+        };
+
+        // Send the user object as a JSON response
+        res.json(user);
+    } catch (error) {
+        console.error("Error retrieving user infos:", error);
+        res.status(500).send({
+            message: `Une erreur est survenue lors de la récupération de cet utilisateur`,
+            error: error.message,
+        });
+    }
+};
