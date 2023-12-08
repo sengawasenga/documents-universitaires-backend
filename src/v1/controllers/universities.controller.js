@@ -268,3 +268,87 @@ exports.getUniversity = async (req, res, next) => {
         });
     }
 };
+
+exports.deactivateUniversity = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const id = req.params.id;
+        const universitiesRef = admin.firestore().collection("universities");
+        const universityDoc = await universitiesRef.doc(id).get();
+
+        // Check if the university exists
+        if (!universityDoc.exists) {
+            res.status(404).send(
+                `Aucune universite trouvée avec cet identifiant`
+            );
+            return;
+        }
+
+        // check permissions for this action
+        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        //     res.status(403).send({
+        //         message: `Action non autorisée pour cet utilisateur`,
+        //     });
+        //     return;
+        // }
+
+        // Deactivate the university
+        await universitiesRef.doc(id).update({status: "inactive", updatedAt: currentDateTime});
+
+        res.status(200).send({
+            message: "Universite désactivé avec succès",
+            // author: req.user.role == "admin" ? "Admin" : "Owner",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la désactivation de l'universite",
+            error: error.message,
+        });
+    }
+};
+
+exports.activateUniversity = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const id = req.params.id;
+        const universitiesRef = admin.firestore().collection("universities");
+        const universityDoc = await universitiesRef.doc(id).get();
+
+        // Check if the university exists
+        if (!universityDoc.exists) {
+            res.status(404).send(
+                `Aucune universite trouvée avec cet identifiant`
+            );
+            return;
+        }
+
+        // check permissions for this action
+        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        //     res.status(403).send({
+        //         message: `Action non autorisée pour cet utilisateur`,
+        //     });
+        //     return;
+        // }
+
+        // Deactivate the university
+        await universitiesRef
+            .doc(id)
+            .update({ status: "active", updatedAt: currentDateTime });
+
+        res.status(200).send({
+            message: "Universite désactivé avec succès",
+            // author: req.user.role == "admin" ? "Admin" : "Owner",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la désactivation de l'universite",
+            error: error.message,
+        });
+    }
+};

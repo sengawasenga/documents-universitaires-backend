@@ -44,4 +44,18 @@ router.get(
     universitiesController.getUniversity
 );
 
+// this route is about: PATCH api/v1/universities/{id}/deactivate
+router.patch(
+    "/:id",
+    universitiesMiddleware.handleAllowedMethods,
+    universitiesController.deactivateUniversity
+);
+
+// this route is about: PATCH api/v1/universities/{id}/activate
+router.patch(
+    "/:id",
+    universitiesMiddleware.handleAllowedMethods,
+    universitiesController.activateUniversity
+);
+
 module.exports = router;
