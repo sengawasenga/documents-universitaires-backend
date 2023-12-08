@@ -1,6 +1,6 @@
 const { body, validationResult } = require("express-validator");
 
-exports.validateUsersData = [
+exports.validateUniversitiesData = [
     body("name")
         .isString()
         .notEmpty()
