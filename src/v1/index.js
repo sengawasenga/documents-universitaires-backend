@@ -1,6 +1,7 @@
 const express = require("express");
 const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
+const universitiesRouter = require("./routes/universities");
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.get("/", (req, res) => {
 // Mount different routers at their respective base URLs
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
+app.use("/universities", universitiesRouter);
 
 module.exports = app;
