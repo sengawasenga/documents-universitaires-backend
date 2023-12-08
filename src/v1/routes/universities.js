@@ -12,12 +12,22 @@ const upload = multer({
     },
 });
 
+// this route is about: POST api/v1/universities
 router.post(
     "/",
     upload.array("images"),
     universitiesMiddleware.handleAllowedMethods,
     universitiesMiddleware.validateUniversitiesData,
     universitiesController.createUniversity
+);
+
+// this route is about: PUT api/v1/universities/{id}
+router.post(
+    "/:id",
+    upload.array("images"),
+    universitiesMiddleware.handleAllowedMethods,
+    universitiesMiddleware.validateUniversitiesData,
+    universitiesController.updateUniversity
 );
 
 module.exports = router;
