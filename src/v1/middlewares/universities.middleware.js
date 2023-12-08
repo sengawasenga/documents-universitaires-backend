@@ -5,7 +5,6 @@ exports.validateUniversitiesData = [
         .isString()
         .notEmpty()
         .withMessage("Veuillez fournir un nom pour l'universite."),
-    body("logo").isString().notEmpty().withMessage("Veuillez fournir un logo."),
     body("description")
         .isString()
         .withMessage(

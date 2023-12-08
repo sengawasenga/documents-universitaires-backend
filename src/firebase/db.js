@@ -16,7 +16,7 @@ const serviceAccount = {
 
 const db = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: "green-tech-1b08c.appspot.com",
+    storageBucket: "gs://documents-universitaires.appspot.com",
 });
 
 module.exports = db;

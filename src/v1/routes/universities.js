@@ -1,6 +1,7 @@
 const express = require("express");
 const universitiesMiddleware = require("../middlewares/universities.middleware");
 const universitiesController = require("../controllers/universities.controller");
+const multer = require("multer");
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const upload = multer({
 // this route is about: POST api/v1/universities
 router.post(
     "/",
-    upload.array("images"),
+    upload.array("logo"),
     universitiesMiddleware.handleAllowedMethods,
     universitiesMiddleware.validateUniversitiesData,
     universitiesController.createUniversity
@@ -24,7 +25,7 @@ router.post(
 // this route is about: PUT api/v1/universities/{id}
 router.put(
     "/:id",
-    upload.array("images"),
+    upload.array("logo"),
     universitiesMiddleware.handleAllowedMethods,
     universitiesMiddleware.validateUniversitiesData,
     universitiesController.updateUniversity
@@ -46,14 +47,14 @@ router.get(
 
 // this route is about: PATCH api/v1/universities/{id}/deactivate
 router.patch(
-    "/:id",
+    "/:id/deactivate",
     universitiesMiddleware.handleAllowedMethods,
     universitiesController.deactivateUniversity
 );
 
 // this route is about: PATCH api/v1/universities/{id}/activate
 router.patch(
-    "/:id",
+    "/:id/activate",
     universitiesMiddleware.handleAllowedMethods,
     universitiesController.activateUniversity
 );

@@ -237,7 +237,7 @@ exports.getUniversity = async (req, res, next) => {
 
         // Retrieve the university data from Cloud Firestore
         const universitiesRef = admin.firestore().collection("universities");
-        const universityDoc = await universitiesRef.doc(req.params.uid).get();
+        const universityDoc = await universitiesRef.doc(req.params.id).get();
         const universityData = universityDoc.data();
 
         if (!universityDoc.exists) {
@@ -248,7 +248,7 @@ exports.getUniversity = async (req, res, next) => {
 
         // Combine the university record and university data into a single object
         const university = {
-            id: universityRecord.uid,
+            id: universityDoc.id,
             name: universityData.name,
             description: universityData.description,
             address: universityData.address,
@@ -340,14 +340,14 @@ exports.activateUniversity = async (req, res, next) => {
             .update({ status: "active", updatedAt: currentDateTime });
 
         res.status(200).send({
-            message: "Universite désactivé avec succès",
+            message: "Universite activé avec succès",
             // author: req.user.role == "admin" ? "Admin" : "Owner",
         });
     } catch (error) {
         console.error(error);
         res.status(500).send({
             message:
-                "Une erreur est survenue lors de la désactivation de l'universite",
+                "Une erreur est survenue lors de l'activation de l'universite",
             error: error.message,
         });
     }
