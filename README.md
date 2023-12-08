@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Ce projet utilise Express.js et Firebase Admin SDK pour créer une application backend qui permet de faire la gestion electronique de documents.
+Ce projet utilise Express.js et Firebase Admin SDK pour créer une application backend qui permet de faire la gestion electronique de documents universitaires.
 L'application utilise Firebase pour authentifier les utilisateurs, stocker les données et sauvegarder les fichiers, ainsi qu'Express.js pour gérer les requêtes HTTP de manière sécurisée.
 
 ## Configuration
