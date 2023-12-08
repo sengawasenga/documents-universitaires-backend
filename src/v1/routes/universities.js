@@ -22,12 +22,26 @@ router.post(
 );
 
 // this route is about: PUT api/v1/universities/{id}
-router.post(
+router.put(
     "/:id",
     upload.array("images"),
     universitiesMiddleware.handleAllowedMethods,
     universitiesMiddleware.validateUniversitiesData,
     universitiesController.updateUniversity
+);
+
+// this route is about: GET api/v1/universities/
+router.get(
+    "/",
+    universitiesMiddleware.handleAllowedMethods,
+    universitiesController.getUniversities
+);
+
+// this route is about: GET api/v1/universities/{id}
+router.get(
+    "/:id",
+    universitiesMiddleware.handleAllowedMethods,
+    universitiesController.getUniversity
 );
 
 module.exports = router;

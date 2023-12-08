@@ -5,18 +5,21 @@ const paginate = require("../../utils/paginate");
 // create an university
 exports.createUniversity = async (req, res, next) => {
     try {
-        const { name, address, description } =
-            req.body;
+        const { name, address, description } = req.body;
         const bucket = admin.storage().bucket();
         const uuid = uuidv4();
         // const userId = req.user.uid;
         const currentDateTime = new Date();
 
-        const universityRef = admin.firestore().collection("universities").doc();
+        const universityRef = admin
+            .firestore()
+            .collection("universities")
+            .doc();
         const university = {
             name,
             address,
             description,
+            status: "active",
             // userId,
             logo: [],
             createdAt: currentDateTime,
@@ -73,6 +76,7 @@ exports.createUniversity = async (req, res, next) => {
                 name,
                 address,
                 description,
+                status: university.status,
                 // userId,
                 logo: university.logo,
                 createdAt: university.createdAt,
@@ -174,7 +178,7 @@ exports.updateUniversity = async (req, res, next) => {
         // Update the university data with the validated request body
         await universityRef.doc(req.params.id).update(university);
 
-        // Send the updated user data as a JSON response
+        // Send the updated university data as a JSON response
         res.json({
             message: "Publication mise à jour avec succès!",
             uid: req.params.uid,
@@ -183,7 +187,83 @@ exports.updateUniversity = async (req, res, next) => {
     } catch (error) {
         console.error("Error updating university:", error);
         res.status(500).send({
-            message: "Une erreur est survenue lors de la mise à jour de cette universite",
+            message:
+                "Une erreur est survenue lors de la mise à jour de cette universite",
+            error: error.message,
+        });
+    }
+};
+
+// get a list of universities
+exports.getUniversities = async (req, res) => {
+    try {
+        // Retrieve the list of registered universities from Cloud Firestore
+        const universitiesRef = admin.firestore().collection("universities");
+        const universitiesSnapshot = await universitiesRef.get();
+        const universities = [];
+
+        // Loop through each document and add it to the categories array
+        universitiesSnapshot.forEach((doc) => {
+            universities.push({
+                id: doc.id,
+                name: doc.data().name,
+                description: doc.data().description,
+                status: doc.data().status,
+                address: doc.data().address,
+                logo: doc.data().logo,
+                createdAt: doc.data().createdAt,
+                updatedAt: doc.data().updatedAt,
+            });
+        });
+
+        // Paginate the list of universities
+        const paginatedUniversities = paginate(universities, req.query.page, req.query.limit);
+
+        // Send the paginated list of universities as a JSON response
+        res.json(paginatedUniversities);
+    } catch (error) {
+        console.error("Error retrieving universities:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des universites",
+            error: error.message,
+        });
+    }
+};
+
+// getting a specific university informations
+exports.getUniversity = async (req, res, next) => {
+    try {
+
+        // Retrieve the university data from Cloud Firestore
+        const universitiesRef = admin.firestore().collection("universities");
+        const universityDoc = await universitiesRef.doc(req.params.uid).get();
+        const universityData = universityDoc.data();
+
+        if (!universityDoc.exists) {
+            return res.status(404).send({
+                message: "Cet utilisateur n'a pas été trouvé",
+            });
+        }
+
+        // Combine the university record and university data into a single object
+        const university = {
+            id: universityRecord.uid,
+            name: universityData.name,
+            description: universityData.description,
+            address: universityData.address,
+            logo: universityData.logo,
+            status: universityData.status,
+            createdAt: universityData.createdAt,
+            updatedAt: universityData.updatedAt,
+        };
+
+        // Send the university object as a JSON response
+        res.json(university);
+    } catch (error) {
+        console.error("Error retrieving university infos:", error);
+        res.status(500).send({
+            message: `Une erreur est survenue lors de la récupération de cet utilisateur`,
             error: error.message,
         });
     }
