@@ -1,4 +1,4 @@
-const paginate = (items, page = 1, limit = 15) => {
+const paginate = (items, page = 1, limit = 20) => {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     const totalItems = items.length;
