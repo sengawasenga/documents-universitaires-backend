@@ -11,7 +11,14 @@ router.get("/", usersMiddleware.handleAllowedMethods, usersController.getUsers);
 // this route is about: GET api/v1/users/{uid}
 router.get(
     "/:uid",
-    isAuth(),
     usersMiddleware.handleAllowedMethods,
     usersController.getUser
+);
+
+// this route is about: PUT api/v1/users/{uid}
+router.put(
+    "/:uid",
+    usersMiddleware.handleAllowedMethods,
+    usersMiddleware.validateUsersData,
+    usersController.updateUser
 );

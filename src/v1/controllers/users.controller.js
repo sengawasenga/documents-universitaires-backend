@@ -80,3 +80,56 @@ exports.getUser = async (req, res, next) => {
         });
     }
 };
+
+// updating a specific user information
+exports.updateUser = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    const userData = {
+        name: req.body.name,
+        firstName: req.body.firstName,
+        sexe: req.body.sexe,
+        age: req.body.age,
+        telephone: req.body.telephone,
+        address: req.body.address,
+        updatedAt: currentDateTime
+    };
+
+    try {
+        // Retrieve the user data from Cloud Firestore
+        const usersRef = admin.firestore().collection("users");
+        const userDoc = await usersRef.doc(req.params.uid).get();
+
+        // Check if the user exists
+        if (!userDoc.exists) {
+            res.status(404).send(
+                `Aucun utilisateur trouvé avec cet identifiant`
+            );
+            return;
+        }
+
+        // check permissions for this action
+        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        //     res.status(403).send({
+        //         message: `Action non autorisée pour cet utilisateur`,
+        //     });
+        //     return;
+        // }
+
+        // Update the user data with the validated request body
+        await usersRef.doc(req.params.uid).update(userData);
+
+        // Send the updated user data as a JSON response
+        res.json({
+            message: "Utilisateur mis à jour avec succès",
+            uid: req.params.uid,
+            // author: req.user.role == "admin" ? "Admin" : "Owner",
+        });
+    } catch (error) {
+        console.error(`Error updating user ${req.params.uid}:`, error);
+        res.status(500).send({
+            message: `Une erreur est survenue lors de la mise à jour de cet utilisateur`,
+            error: error.error.message,
+        });
+    }
+};
