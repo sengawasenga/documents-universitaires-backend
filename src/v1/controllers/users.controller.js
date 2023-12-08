@@ -133,3 +133,74 @@ exports.updateUser = async (req, res, next) => {
         });
     }
 };
+
+// deactivate a specific user
+exports.deactivateUser = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const uid = req.params.uid;
+        const userDoc = await usersRef.doc(req.params.uid).get();
+
+        // check permissions for this action
+        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        //     res.status(403).send({
+        //         message: `Action non autorisée pour cet utilisateur`,
+        //     });
+        //     return;
+        // }
+
+        // Deactivate user account
+        await admin.auth().updateUser(uid, {
+            disabled: true,
+            updatedAt: currentDateTime
+        });
+
+        res.status(200).send({
+            message: "Compte d'utilisateur désactivé avec succès",
+            // author: req.user.role == "admin" ? "Admin" : "Owner",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message: "Une erreur est survenue lors de la désactivation du compte d'utilisateur",
+            error: error.message,
+        });
+    }
+};
+
+// activate a specific user
+exports.activateUser = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const uid = req.params.uid;
+
+        const userDoc = await usersRef.doc(req.params.uid).get();
+
+        // check permissions for this action
+        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        //     res.status(403).send({
+        //         message: `Action non autorisée pour cet utilisateur`,
+        //     });
+        //     return;
+        // }
+
+        // Activate user account
+        await admin.auth().updateUser(uid, {
+            disabled: false,
+            updatedAt: currentDateTime
+        });
+
+        res.status(200).send({
+            message: "Compte d'utilisateur activé avec succès",
+            // author: req.user.role == "admin" ? "Admin" : "Owner",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message: "Une erreur est survenue lors de l'activation du compte d'utilisateur",
+            error: error.message,
+        });
+    }
+};

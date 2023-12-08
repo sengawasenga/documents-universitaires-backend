@@ -22,3 +22,17 @@ router.put(
     usersMiddleware.validateUsersData,
     usersController.updateUser
 );
+
+// this route is about: PATCH api/v1/users/{uid}/deactivate
+router.patch(
+    "/:uid/deactivate",
+    usersMiddleware.handleAllowedMethods,
+    usersController.deactivateUser
+);
+
+// this route is about: PATCH api/v1/users/{uid}/activate
+router.patch(
+    "/:uid/activate",
+    usersMiddleware.handleAllowedMethods,
+    usersController.activateUser
+);
