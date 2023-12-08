@@ -1,4 +1,4 @@
-const admin = require("../../firebase/db");
+const admin = require("../../../firebase/db");
 
 exports.signup = async (req, res, next) => {
     // Handle register logic here
