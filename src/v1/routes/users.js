@@ -2,7 +2,6 @@ const express = require("express");
 const usersMiddleware = require("../middlewares/users.middleware");
 const usersController = require("../controllers/users.controller");
 
-
 const router = express.Router();
 
 // this route is about: GET api/v1/users/
@@ -36,3 +35,5 @@ router.patch(
     usersMiddleware.handleAllowedMethods,
     usersController.activateUser
 );
+
+module.exports = router;

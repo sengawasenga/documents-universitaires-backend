@@ -15,6 +15,7 @@ exports.getUsers = async (req, res, next) => {
                 uid: doc.id,
                 name: doc.data().name,
                 firstName: doc.data().firstName,
+                usename: doc.data().usename,
                 sexe: doc.data().sexe,
                 age: doc.data().age,
                 telephone: doc.data().telephone,
@@ -62,10 +63,11 @@ exports.getUser = async (req, res, next) => {
             uid: userRecord.uid,
             name: userData.name,
             firstName: userData.firstName,
+            username: userData.username,
             telephone: userData.telephone,
             address: userData.address,
             sexe: userData.sexe,
-            accountType: userData.role,
+            accountType: userData.accountType,
             createdAt: userData.createdAt,
             updatedAt: userData.updatedAt,
         };
@@ -140,7 +142,16 @@ exports.deactivateUser = async (req, res, next) => {
 
     try {
         const uid = req.params.uid;
-        const userDoc = await usersRef.doc(req.params.uid).get();
+        const usersRef = admin.firestore().collection("users");
+        const userDoc = await usersRef.doc(uid).get();
+
+        // Check if the user exists
+        if (!userDoc.exists) {
+            res.status(404).send(
+                `Aucun utilisateur trouvé avec cet identifiant`
+            );
+            return;
+        }
 
         // check permissions for this action
         // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
@@ -175,8 +186,16 @@ exports.activateUser = async (req, res, next) => {
 
     try {
         const uid = req.params.uid;
+        const usersRef = admin.firestore().collection("users");
+        const userDoc = await usersRef.doc(uid).get();
 
-        const userDoc = await usersRef.doc(req.params.uid).get();
+        // Check if the user exists
+        if (!userDoc.exists) {
+            res.status(404).send(
+                `Aucun utilisateur trouvé avec cet identifiant`
+            );
+            return;
+        }
 
         // check permissions for this action
         // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
