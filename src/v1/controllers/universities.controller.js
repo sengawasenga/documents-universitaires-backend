@@ -87,7 +87,7 @@ exports.createUniversity = async (req, res, next) => {
         console.error("Error creating university:", error);
         res.status(500).send({
             message:
-                "Une erreur est survenue lors de la création de cette publication",
+                "Une erreur est survenue lors de la création de cette universite",
             error: error.message,
         });
     }
@@ -289,7 +289,7 @@ exports.getUniversity = async (req, res, next) => {
     } catch (error) {
         console.error("Error retrieving university infos:", error);
         res.status(500).send({
-            message: `Une erreur est survenue lors de la récupération de cet utilisateur`,
+            message: `Une erreur est survenue lors de la récupération de cette universite`,
             error: error.message,
         });
     }

@@ -38,13 +38,15 @@ router.put(
 // this route is about: GET api/v1/universities/
 router.get(
     "/",
+    isAuth(),
     universitiesMiddleware.handleAllowedMethods,
     universitiesController.getUniversities
 );
 
 // this route is about: GET api/v1/universities/{id}
 router.get(
-    "/:id", isAuth(),
+    "/:id",
+    isAuth(),
     universitiesMiddleware.handleAllowedMethods,
     universitiesController.getUniversity
 );

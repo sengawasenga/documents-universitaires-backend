@@ -2,6 +2,7 @@ const express = require("express");
 const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
 const universitiesRouter = require("./routes/universities");
+const facultiesRouter = require("./routes/faculties");
 
 const app = express();
 
@@ -16,5 +17,6 @@ app.get("/", (req, res) => {
 app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/universities", universitiesRouter);
+app.use("/faculties", facultiesRouter);
 
 module.exports = app;

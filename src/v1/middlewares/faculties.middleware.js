@@ -1,22 +1,19 @@
 const { body, validationResult } = require("express-validator");
 
-exports.validateUniversitiesData = [
+exports.validateFacultiesData = [
     body("name")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir un nom pour l'universite."),
-    body("userId")
+        .withMessage("Veuillez fournir un nom pour la faculte."),
+    body("universityId")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir un proprietaire d'universite."),
+        .withMessage("Veuillez fournir une universite pour la faculte."),
     body("description")
         .isString()
         .withMessage(
-            "Veuillez fournir une breve description de votre universite."
+            "Veuillez fournir une breve description de votre faculte."
         ),
-    body("address")
-        .isString({ min: 0, max: 150 })
-        .withMessage("Veuillez fournir une adresse de votre universite."),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
