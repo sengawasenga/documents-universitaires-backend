@@ -56,8 +56,8 @@ router.patch(
     departmentsController.activateDepartment
 );
 
-// this route is about: PATCH api/v1/departments/{id}/activate
-router.patch(
+// this route is about: GET api/v1/departments/{id}/classrooms
+router.get(
     "/:id/classrooms",
     isAuth(),
     departmentsMiddleware.handleAllowedMethods,

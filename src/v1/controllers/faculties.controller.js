@@ -218,7 +218,7 @@ exports.getClassrooms = async (req, res) => {
         // Récupérez les auditoires associés à chaque département
         for (const doc of departmentsSnapshot.docs) {
             const departmentId = doc.id;
-            const classroomsSnapshot = await db
+            const classroomsSnapshot = await admin.firestore()
                 .collection("classrooms")
                 .where("departmentId", "==", departmentId)
                 .get();

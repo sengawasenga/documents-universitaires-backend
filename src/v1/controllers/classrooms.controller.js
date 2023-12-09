@@ -166,7 +166,7 @@ exports.getClassroom = async (req, res, next) => {
             name: classroomData.name,
             status: classroomData.status,
             department: {
-                id: departmentDoc.data().departmentId,
+                id: classroomDoc.data().departmentId,
                 name: departmentRef.data().name,
                 description: departmentRef.data().description,
             },
