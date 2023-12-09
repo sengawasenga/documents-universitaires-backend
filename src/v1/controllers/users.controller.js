@@ -111,12 +111,12 @@ exports.updateUser = async (req, res, next) => {
         }
 
         // check permissions for this action
-        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
-        //     res.status(403).send({
-        //         message: `Action non autorisée pour cet utilisateur`,
-        //     });
-        //     return;
-        // }
+        if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+            res.status(403).send({
+                message: `Action non autorisée pour cet utilisateur`,
+            });
+            return;
+        }
 
         // Update the user data with the validated request body
         await usersRef.doc(req.params.uid).update(userData);
@@ -125,7 +125,7 @@ exports.updateUser = async (req, res, next) => {
         res.json({
             message: "Utilisateur mis à jour avec succès",
             uid: req.params.uid,
-            // author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: req.user.role == "admin" ? "Admin" : "Owner",
         });
     } catch (error) {
         console.error(`Error updating user ${req.params.uid}:`, error);
@@ -154,12 +154,12 @@ exports.deactivateUser = async (req, res, next) => {
         }
 
         // check permissions for this action
-        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
-        //     res.status(403).send({
-        //         message: `Action non autorisée pour cet utilisateur`,
-        //     });
-        //     return;
-        // }
+        if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+            res.status(403).send({
+                message: `Action non autorisée pour cet utilisateur`,
+            });
+            return;
+        }
 
         // Deactivate user account
         await admin.auth().updateUser(uid, {
@@ -169,7 +169,7 @@ exports.deactivateUser = async (req, res, next) => {
 
         res.status(200).send({
             message: "Compte d'utilisateur désactivé avec succès",
-            // author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: req.user.role == "admin" ? "Admin" : "Owner",
         });
     } catch (error) {
         console.error(error);
@@ -198,12 +198,12 @@ exports.activateUser = async (req, res, next) => {
         }
 
         // check permissions for this action
-        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
-        //     res.status(403).send({
-        //         message: `Action non autorisée pour cet utilisateur`,
-        //     });
-        //     return;
-        // }
+        if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+            res.status(403).send({
+                message: `Action non autorisée pour cet utilisateur`,
+            });
+            return;
+        }
 
         // Activate user account
         await admin.auth().updateUser(uid, {
@@ -213,7 +213,7 @@ exports.activateUser = async (req, res, next) => {
 
         res.status(200).send({
             message: "Compte d'utilisateur activé avec succès",
-            // author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: req.user.role == "admin" ? "Admin" : "Owner",
         });
     } catch (error) {
         console.error(error);

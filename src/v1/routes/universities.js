@@ -2,6 +2,8 @@ const express = require("express");
 const universitiesMiddleware = require("../middlewares/universities.middleware");
 const universitiesController = require("../controllers/universities.controller");
 const multer = require("multer");
+const { isOwner } = require("../middlewares/auth/isOwner");
+const { isAuth } = require("../middlewares/auth/isAuth");
 
 const router = express.Router();
 
@@ -16,6 +18,7 @@ const upload = multer({
 // this route is about: POST api/v1/universities
 router.post(
     "/",
+    isOwner(),
     upload.array("logo"),
     universitiesMiddleware.handleAllowedMethods,
     universitiesMiddleware.validateUniversitiesData,
@@ -25,6 +28,7 @@ router.post(
 // this route is about: PUT api/v1/universities/{id}
 router.put(
     "/:id",
+    isOwner(),
     upload.array("logo"),
     universitiesMiddleware.handleAllowedMethods,
     universitiesMiddleware.validateUniversitiesData,
@@ -40,7 +44,7 @@ router.get(
 
 // this route is about: GET api/v1/universities/{id}
 router.get(
-    "/:id",
+    "/:id", isAuth(),
     universitiesMiddleware.handleAllowedMethods,
     universitiesController.getUniversity
 );
@@ -48,6 +52,7 @@ router.get(
 // this route is about: PATCH api/v1/universities/{id}/deactivate
 router.patch(
     "/:id/deactivate",
+    isOwner(),
     universitiesMiddleware.handleAllowedMethods,
     universitiesController.deactivateUniversity
 );
@@ -55,6 +60,7 @@ router.patch(
 // this route is about: PATCH api/v1/universities/{id}/activate
 router.patch(
     "/:id/activate",
+    isOwner(),
     universitiesMiddleware.handleAllowedMethods,
     universitiesController.activateUniversity
 );

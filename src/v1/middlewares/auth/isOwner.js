@@ -1,4 +1,4 @@
-const admin = require("../../firebase/db");
+const admin = require("../../../firebase/db");
 
 const verifyIdToken = async (token) => {
     try {
@@ -10,7 +10,7 @@ const verifyIdToken = async (token) => {
     }
 };
 
-const isAdmin = () => {
+const isOwner = () => {
     return async (req, res, next) => {
         try {
             const token = req.headers.authorization.split(" ")[1];
@@ -65,4 +65,4 @@ const isAdmin = () => {
     };
 };
 
-module.exports = { isAdmin };
+module.exports = { isOwner };

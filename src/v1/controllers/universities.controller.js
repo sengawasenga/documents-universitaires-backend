@@ -8,7 +8,7 @@ exports.createUniversity = async (req, res, next) => {
         const { name, address, description } = req.body;
         const bucket = admin.storage().bucket();
         const uuid = uuidv4();
-        // const userId = req.user.uid;
+        const userId = req.user.uid;
         const currentDateTime = new Date();
 
         const universityRef = admin
@@ -20,7 +20,7 @@ exports.createUniversity = async (req, res, next) => {
             address,
             description,
             status: "active",
-            // userId,
+            userId,
             logo: [],
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
@@ -77,7 +77,7 @@ exports.createUniversity = async (req, res, next) => {
                 address,
                 description,
                 status: university.status,
-                // userId,
+                userId,
                 logo: university.logo,
                 createdAt: university.createdAt,
                 updatedAt: university.updatedAt,
@@ -105,10 +105,10 @@ exports.updateUniversity = async (req, res, next) => {
         const universityDoc = await universityRef.doc(req.params.id).get();
 
         // Check if the user has permission to update a post
-        // if (req.user.uid !== postDoc.data().userId && req.user.role !== 'admin') {
-        //     res.status(403).send({ message: `Cette action n'est pas autorisée pour cet utilisateur` });
-        //     return;
-        // }
+        if (req.user.uid !== postDoc.data().userId) {
+            res.status(403).send({ message: `Cette action n'est pas autorisée pour cet utilisateur` });
+            return;
+        }
 
         // Check if the university exists
         if (!universityDoc.exists) {
@@ -122,7 +122,6 @@ exports.updateUniversity = async (req, res, next) => {
             name,
             address,
             description,
-            // userId,
             logo: universityDoc.data().logo,
             updatedAt: currentDateTime,
         };
@@ -182,7 +181,7 @@ exports.updateUniversity = async (req, res, next) => {
         res.json({
             message: "Publication mise à jour avec succès!",
             uid: req.params.uid,
-            // author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: "Owner",
         });
     } catch (error) {
         console.error("Error updating university:", error);
@@ -286,19 +285,19 @@ exports.deactivateUniversity = async (req, res, next) => {
         }
 
         // check permissions for this action
-        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
-        //     res.status(403).send({
-        //         message: `Action non autorisée pour cet utilisateur`,
-        //     });
-        //     return;
-        // }
+        if (req.user.uid !== userDoc.data().uid) {
+            res.status(403).send({
+                message: `Action non autorisée pour cet utilisateur`,
+            });
+            return;
+        }
 
         // Deactivate the university
         await universitiesRef.doc(id).update({status: "inactive", updatedAt: currentDateTime});
 
         res.status(200).send({
             message: "Universite désactivé avec succès",
-            // author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: "Owner",
         });
     } catch (error) {
         console.error(error);
@@ -327,12 +326,12 @@ exports.activateUniversity = async (req, res, next) => {
         }
 
         // check permissions for this action
-        // if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
-        //     res.status(403).send({
-        //         message: `Action non autorisée pour cet utilisateur`,
-        //     });
-        //     return;
-        // }
+        if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+            res.status(403).send({
+                message: `Action non autorisée pour cet utilisateur`,
+            });
+            return;
+        }
 
         // Deactivate the university
         await universitiesRef
@@ -341,7 +340,7 @@ exports.activateUniversity = async (req, res, next) => {
 
         res.status(200).send({
             message: "Universite activé avec succès",
-            // author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: "Owner",
         });
     } catch (error) {
         console.error(error);
