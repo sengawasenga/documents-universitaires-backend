@@ -8,10 +8,7 @@ exports.createFaculty = async (req, res, next) => {
         const { name, universityId, description } = req.body;
         const currentDateTime = new Date();
 
-        const facultyRef = admin
-            .firestore()
-            .collection("faculties")
-            .doc();
+        const facultyRef = admin.firestore().collection("faculties").doc();
         const faculty = {
             name,
             description,
@@ -185,7 +182,72 @@ exports.getDepartments = async (req, res) => {
         return res.status(200).json(paginatedDepartments);
     } catch (error) {
         console.error("Erreur:", error);
-        return res.status(500).json({ error: "Erreur serveur" });
+        return res
+            .status(500)
+            .json({
+                message:
+                    "Une erreur est survenue lors de la recuperation de la liste des departements",
+                error: error.message,
+            });
+    }
+};
+
+// get a list departements related to the current faculty
+exports.getClassrooms = async (req, res) => {
+    try {
+        const facultyId = req.params.id;
+
+        const facultiesRef = admin.firestore().collection("faculties");
+        const facultyDoc = await facultiesRef.doc(facultyId).get();
+
+        if (!facultyDoc.exists) {
+            return res.status(404).send({
+                message: "Cette faculte n'a pas été trouvée",
+            });
+        }
+
+        // Récupérez les départements associés à la faculté
+        const departmentsSnapshot = await admin
+            .firestore()
+            .collection("departments")
+            .where("facultyId", "==", facultyId)
+            .get();
+
+        const classrooms = [];
+
+        // Récupérez les auditoires associés à chaque département
+        for (const doc of departmentsSnapshot.docs) {
+            const departmentId = doc.id;
+            const classroomsSnapshot = await db
+                .collection("classrooms")
+                .where("departmentId", "==", departmentId)
+                .get();
+
+            classroomsSnapshot.forEach((classroomDoc) => {
+                classrooms.push({
+                    id: classroomDoc.id,
+                    ...classroomDoc.data(),
+                });
+            });
+        }
+
+        // Paginate the list of classrooms
+        const paginatedClassrooms = paginate(
+            classrooms,
+            req.query.page,
+            req.query.limit
+        );
+
+        return res.status(200).json(paginatedClassrooms);
+    } catch (error) {
+        console.error("Error while retrieving faculty classrooms:", error);
+        return res
+            .status(500)
+            .json({
+                message:
+                    "Une erreur est survenue lors de la recuperation de la liste des auditoires",
+                error: error.message,
+            });
     }
 };
 
@@ -290,9 +352,7 @@ exports.activateFaculty = async (req, res, next) => {
 
         // Check if the faculty exists
         if (!facultyDoc.exists) {
-            res.status(404).send(
-                `Aucune faculte trouvée avec cet identifiant`
-            );
+            res.status(404).send(`Aucune faculte trouvée avec cet identifiant`);
             return;
         }
 

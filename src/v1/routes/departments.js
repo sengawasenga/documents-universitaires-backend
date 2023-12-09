@@ -56,4 +56,12 @@ router.patch(
     departmentsController.activateDepartment
 );
 
+// this route is about: PATCH api/v1/departments/{id}/activate
+router.patch(
+    "/:id/classrooms",
+    isAuth(),
+    departmentsMiddleware.handleAllowedMethods,
+    departmentsController.getClassrooms
+);
+
 module.exports = router;

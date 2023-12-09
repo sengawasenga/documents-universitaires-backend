@@ -242,7 +242,9 @@ exports.activateDepartment = async (req, res, next) => {
 
         // Check if the department exists
         if (!departmentDoc.exists) {
-            res.status(404).send(`Aucun departement trouvé avec cet identifiant`);
+            res.status(404).send(
+                `Aucun departement trouvé avec cet identifiant`
+            );
             return;
         }
 
@@ -268,6 +270,55 @@ exports.activateDepartment = async (req, res, next) => {
         res.status(500).send({
             message:
                 "Une erreur est survenue lors de l'activation du departement",
+            error: error.message,
+        });
+    }
+};
+
+exports.getClassrooms = async (req, res) => {
+    try {
+        const departmentId = req.params.id;
+
+        const departmentsRef = admin.firestore().collection("departments");
+        const departmentDoc = await departmentsRef.doc(departmentId).get();
+
+        if (!departmentDoc.exists) {
+            return res.status(404).send({
+                message: "Ce departement n'a pas été trouvé",
+            });
+        }
+
+        // Récupérez les auditoires associés au departement
+        const classroomsSnapshot = await admin
+            .firestore()
+            .collection("classrooms")
+            .where("departmentId", "==", departmentId)
+            .get();
+        const classrooms = [];
+
+        classroomsSnapshot.forEach((doc) => {
+            classrooms.push({
+                id: doc.id,
+                ...doc.data(),
+            });
+        });
+
+        // Paginate the list of classrooms
+        const paginatedClassrooms = paginate(
+            classrooms,
+            req.query.page,
+            req.query.limit
+        );
+
+        return res.status(200).json(paginatedClassrooms);
+    } catch (error) {
+        console.error(
+            "Error while retrieving departments classrooms list:",
+            error
+        );
+        return res.status(500).json({
+            message:
+                "Une erreur est survenue lors de la recuperation de la liste des auditoires",
             error: error.message,
         });
     }

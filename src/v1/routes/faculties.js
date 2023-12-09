@@ -64,4 +64,12 @@ router.get(
     facultiesController.getDepartments
 );
 
+// this route is about: GET api/v1/faculties/{id}/classrooms
+router.get(
+    "/:id/classrooms",
+    isAuth(),
+    facultiesMiddleware.handleAllowedMethods,
+    facultiesController.getClassrooms
+);
+
 module.exports = router;
