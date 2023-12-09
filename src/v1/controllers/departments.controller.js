@@ -170,7 +170,7 @@ exports.getDepartment = async (req, res, next) => {
             description: departmentData.description,
             status: departmentData.status,
             faculty: {
-                id: facultyDoc.data().facultyId,
+                id: departmentDoc.data().facultyId,
                 name: facultyRef.data().name,
                 description: facultyRef.data().description,
             },
