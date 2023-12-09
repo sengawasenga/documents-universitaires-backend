@@ -104,9 +104,11 @@ exports.updateUniversity = async (req, res, next) => {
         const universityRef = admin.firestore().collection("universities");
         const universityDoc = await universityRef.doc(req.params.id).get();
 
-        // Check if the user has permission to update a post
-        if (req.user.uid !== postDoc.data().userId) {
-            res.status(403).send({ message: `Cette action n'est pas autorisée pour cet utilisateur` });
+        // Check if the user has permission to update an university
+        if (req.user.uid !== universityDoc.data().userId) {
+            res.status(403).send({
+                message: `Cette action n'est pas autorisée pour cet utilisateur`,
+            });
             return;
         }
 

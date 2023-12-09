@@ -111,7 +111,7 @@ exports.updateUser = async (req, res, next) => {
         }
 
         // check permissions for this action
-        if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        if (req.user.uid !== userDoc.id) {
             res.status(403).send({
                 message: `Action non autorisée pour cet utilisateur`,
             });
@@ -125,7 +125,7 @@ exports.updateUser = async (req, res, next) => {
         res.json({
             message: "Utilisateur mis à jour avec succès",
             uid: req.params.uid,
-            author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: "Owner",
         });
     } catch (error) {
         console.error(`Error updating user ${req.params.uid}:`, error);
@@ -154,7 +154,7 @@ exports.deactivateUser = async (req, res, next) => {
         }
 
         // check permissions for this action
-        if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        if (req.user.uid !== userDoc.id) {
             res.status(403).send({
                 message: `Action non autorisée pour cet utilisateur`,
             });
@@ -169,7 +169,7 @@ exports.deactivateUser = async (req, res, next) => {
 
         res.status(200).send({
             message: "Compte d'utilisateur désactivé avec succès",
-            author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: "Owner",
         });
     } catch (error) {
         console.error(error);
@@ -198,7 +198,7 @@ exports.activateUser = async (req, res, next) => {
         }
 
         // check permissions for this action
-        if (req.user.uid !== userDoc.data().uid && req.user.role !== "admin") {
+        if (req.user.uid !== userDoc.id) {
             res.status(403).send({
                 message: `Action non autorisée pour cet utilisateur`,
             });
@@ -213,7 +213,7 @@ exports.activateUser = async (req, res, next) => {
 
         res.status(200).send({
             message: "Compte d'utilisateur activé avec succès",
-            author: req.user.role == "admin" ? "Admin" : "Owner",
+            author: "Owner",
         });
     } catch (error) {
         console.error(error);
