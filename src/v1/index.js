@@ -3,6 +3,7 @@ const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
 const universitiesRouter = require("./routes/universities");
 const facultiesRouter = require("./routes/faculties");
+const departmentsRouter = require("./routes/departments");
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.use("/auth", authRouter);
 app.use("/users", usersRouter);
 app.use("/universities", universitiesRouter);
 app.use("/faculties", facultiesRouter);
+app.use("/departments", departmentsRouter);
 
 module.exports = app;
