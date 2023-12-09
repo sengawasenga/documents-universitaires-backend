@@ -5,6 +5,7 @@ const universitiesRouter = require("./routes/universities");
 const facultiesRouter = require("./routes/faculties");
 const departmentsRouter = require("./routes/departments");
 const classroomsRouter = require("./routes/classrooms");
+const academicYearsRouter = require("./routes/academicYears");
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.use("/universities", universitiesRouter);
 app.use("/faculties", facultiesRouter);
 app.use("/departments", departmentsRouter);
 app.use("/classrooms", classroomsRouter);
+app.use("/academicYears", academicYearsRouter);
 
 module.exports = app;

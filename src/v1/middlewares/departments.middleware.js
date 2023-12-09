@@ -4,11 +4,11 @@ exports.validateDepartmentsData = [
     body("name")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir un nom pour la departement."),
+        .withMessage("Veuillez fournir un nom pour le departement."),
     body("facultyId")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir une universite pour la departement."),
+        .withMessage("Veuillez fournir une universite pour le departement."),
     body("description")
         .isString()
         .withMessage(
@@ -27,7 +27,7 @@ exports.validateUpdateDepartmentsData = [
     body("name")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir un nom pour la departement."),
+        .withMessage("Veuillez fournir un nom pour le departement."),
     body("description")
         .isString()
         .withMessage(

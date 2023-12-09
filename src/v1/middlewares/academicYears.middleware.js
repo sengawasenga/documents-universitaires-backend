@@ -1,14 +1,14 @@
 const { body, validationResult } = require("express-validator");
 
-exports.validateClassroomsData = [
+exports.validateAcademicYearsData = [
     body("name")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir un nom pour l'auditoire."),
-    body("departmentId")
+        .withMessage("Veuillez fournir un nom pour l'annee academique'."),
+    body("universityId")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir une universite pour l'auditoire."),
+        .withMessage("Veuillez fournir une universite pour l'annee academique."),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -18,11 +18,11 @@ exports.validateClassroomsData = [
     },
 ];
 
-exports.validateUpdateClassroomsData = [
+exports.validateUpdateAcademicYearsData = [
     body("name")
         .isString()
         .notEmpty()
-        .withMessage("Veuillez fournir un nom pour l'auditoire."),
+        .withMessage("Veuillez fournir un nom pour l'annee academique."),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
