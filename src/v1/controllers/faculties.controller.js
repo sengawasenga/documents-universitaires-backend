@@ -220,7 +220,7 @@ exports.getFaculty = async (req, res, next) => {
             university: {
                 id: facultyDoc.data().universityId,
                 name: universityRef.data().name,
-                firstName: universityRef.data().firstName,
+                description: universityRef.data().description,
             },
             createdAt: facultyData.createdAt,
             updatedAt: facultyData.updatedAt,

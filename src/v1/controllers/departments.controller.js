@@ -168,13 +168,11 @@ exports.getDepartment = async (req, res, next) => {
             id: departmentDoc.id,
             name: departmentData.name,
             description: departmentData.description,
-            address: departmentData.address,
-            logo: departmentData.logo,
             status: departmentData.status,
             faculty: {
                 id: facultyDoc.data().facultyId,
                 name: facultyRef.data().name,
-                firstName: facultyRef.data().firstName,
+                description: facultyRef.data().description,
             },
             createdAt: departmentData.createdAt,
             updatedAt: departmentData.updatedAt,
@@ -202,7 +200,7 @@ exports.deactivateDepartment = async (req, res, next) => {
         // Check if the department exists
         if (!departmentDoc.exists) {
             res.status(404).send(
-                `Aucune universite trouvée avec cet identifiant`
+                `Aucun departement trouvé avec cet identifiant`
             );
             return;
         }
