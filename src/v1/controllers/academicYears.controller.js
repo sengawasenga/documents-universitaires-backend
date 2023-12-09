@@ -9,8 +9,10 @@ exports.createAcademicYear = async (req, res, next) => {
         const currentDateTime = new Date();
 
         // Set all existing academic years to 'inactive'
-        const allAcademicYearsSnapshot = await admin.firestore()
+        const allAcademicYearsSnapshot = await admin
+            .firestore()
             .collection("academicYears")
+            .where("universityId", "==", universityId)
             .get();
         const batch = admin.firestore().batch();
 
@@ -111,7 +113,7 @@ exports.updateAcademicYear = async (req, res, next) => {
 exports.getAcademicYears = async (req, res) => {
     try {
         // Retrieve the list of registered academicYear from Cloud Firestore
-        const academicYearRef = admin.firestore().collection("academicYear");
+        const academicYearRef = admin.firestore().collection("academicYears");
         const academicYearSnapshot = await academicYearRef.get();
         const academicYear = [];
 
@@ -172,10 +174,10 @@ exports.getAcademicYear = async (req, res, next) => {
             });
         }
 
-        const departmentRef = await admin
+        const universityRef = await admin
             .firestore()
-            .collection("departments")
-            .doc(academicYearDoc.data().departmentId)
+            .collection("universities")
+            .doc(academicYearDoc.data().universityId)
             .get();
 
         // Combine the academicYear record and academicYear data into a single object
@@ -183,10 +185,10 @@ exports.getAcademicYear = async (req, res, next) => {
             id: academicYearDoc.id,
             name: academicYearData.name,
             status: academicYearData.status,
-            department: {
-                id: departmentDoc.data().departmentId,
-                name: departmentRef.data().name,
-                description: departmentRef.data().description,
+            university: {
+                id: academicYearDoc.data().universityId,
+                name: universityRef.data().name,
+                description: universityRef.data().description,
             },
             createdAt: academicYearData.createdAt,
             updatedAt: academicYearData.updatedAt,
@@ -272,6 +274,7 @@ exports.activateAcademicYear = async (req, res, next) => {
         const allAcademicYearsSnapshot = await admin
             .firestore()
             .collection("academicYears")
+            .where("universityId", "==", academicYearDoc.data().universityId)
             .get();
         const batch = admin.firestore().batch();
 
