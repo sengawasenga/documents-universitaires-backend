@@ -204,7 +204,13 @@ exports.getUniversities = async (req, res) => {
         const universities = [];
 
         // Loop through each document and add it to the categories array
-        universitiesSnapshot.forEach((doc) => {
+        for (const doc of universitiesSnapshot.docs) {
+            const userRef = await admin
+                .firestore()
+                .collection("users")
+                .doc(doc.data().userId)
+                .get();
+
             universities.push({
                 id: doc.id,
                 name: doc.data().name,
@@ -212,13 +218,22 @@ exports.getUniversities = async (req, res) => {
                 status: doc.data().status,
                 address: doc.data().address,
                 logo: doc.data().logo,
+                user: {
+                    id: doc.data().userId,
+                    name: userRef.data().name,
+                    firstName: userRef.data().firstName,
+                },
                 createdAt: doc.data().createdAt,
                 updatedAt: doc.data().updatedAt,
             });
-        });
+        }
 
         // Paginate the list of universities
-        const paginatedUniversities = paginate(universities, req.query.page, req.query.limit);
+        const paginatedUniversities = paginate(
+            universities,
+            req.query.page,
+            req.query.limit
+        );
 
         // Send the paginated list of universities as a JSON response
         res.json(paginatedUniversities);
@@ -235,7 +250,6 @@ exports.getUniversities = async (req, res) => {
 // getting a specific university informations
 exports.getUniversity = async (req, res, next) => {
     try {
-
         // Retrieve the university data from Cloud Firestore
         const universitiesRef = admin.firestore().collection("universities");
         const universityDoc = await universitiesRef.doc(req.params.id).get();
@@ -243,9 +257,15 @@ exports.getUniversity = async (req, res, next) => {
 
         if (!universityDoc.exists) {
             return res.status(404).send({
-                message: "Cet utilisateur n'a pas été trouvé",
+                message: "Cette universite n'a pas été trouvée",
             });
         }
+
+        const userRef = await admin
+            .firestore()
+            .collection("users")
+            .doc(universityDoc.data().userId)
+            .get();
 
         // Combine the university record and university data into a single object
         const university = {
@@ -255,6 +275,11 @@ exports.getUniversity = async (req, res, next) => {
             address: universityData.address,
             logo: universityData.logo,
             status: universityData.status,
+            user: {
+                id: universityDoc.data().userId,
+                name: userRef.data().name,
+                firstName: userRef.data().firstName,
+            },
             createdAt: universityData.createdAt,
             updatedAt: universityData.updatedAt,
         };
@@ -295,7 +320,9 @@ exports.deactivateUniversity = async (req, res, next) => {
         }
 
         // Deactivate the university
-        await universitiesRef.doc(id).update({status: "inactive", updatedAt: currentDateTime});
+        await universitiesRef
+            .doc(id)
+            .update({ status: "inactive", updatedAt: currentDateTime });
 
         res.status(200).send({
             message: "Universite désactivé avec succès",
