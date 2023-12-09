@@ -146,6 +146,49 @@ exports.getFaculties = async (req, res) => {
     }
 };
 
+// get a list departements related to the current faculty
+exports.getDepartments = async (req, res) => {
+    try {
+        const facultyId = req.params.id;
+
+        const facultiesRef = admin.firestore().collection("faculties");
+        const facultyDoc = await facultiesRef.doc(facultyId).get();
+
+        if (!facultyDoc.exists) {
+            return res.status(404).send({
+                message: "Cette faculte n'a pas été trouvée",
+            });
+        }
+
+        // Récupérez les départements associés à la faculté
+        const departmentsSnapshot = await admin
+            .firestore()
+            .collection("departments")
+            .where("facultyId", "==", facultyId)
+            .get();
+        const departments = [];
+
+        departmentsSnapshot.forEach((doc) => {
+            departments.push({
+                id: doc.id,
+                ...doc.data(),
+            });
+        });
+
+        // Paginate the list of departments
+        const paginatedDepartments = paginate(
+            departments,
+            req.query.page,
+            req.query.limit
+        );
+
+        return res.status(200).json(paginatedDepartments);
+    } catch (error) {
+        console.error("Erreur:", error);
+        return res.status(500).json({ error: "Erreur serveur" });
+    }
+};
+
 // getting a specific faculty informations
 exports.getFaculty = async (req, res, next) => {
     try {
