@@ -10,7 +10,7 @@ exports.createFaculty = async (req, res, next) => {
 
         const facultyRef = admin
             .firestore()
-            .collection("universities")
+            .collection("faculties")
             .doc();
         const faculty = {
             name,
@@ -25,7 +25,7 @@ exports.createFaculty = async (req, res, next) => {
         await facultyRef.set(faculty);
 
         res.send({
-            message: "Université créée avec succès",
+            message: "Faculté créée avec succès",
             faculty: {
                 id: facultyRef.id,
                 name,
@@ -52,10 +52,10 @@ exports.updateFaculty = async (req, res, next) => {
         const { name, description } = req.body;
         const currentDateTime = new Date();
 
-        const facultyRef = admin.firestore().collection("universities");
+        const facultyRef = admin.firestore().collection("faculties");
         const facultyDoc = await facultyRef.doc(req.params.id).get();
 
-        // Check if the user has permission to update an faculty
+        // Check if the user has permission to update this faculty
         // if (req.user.uid !== facultyDoc.data().userId) {
         //     res.status(403).send({
         //         message: `Cette action n'est pas autorisée pour cet utilisateur`,
@@ -82,7 +82,7 @@ exports.updateFaculty = async (req, res, next) => {
 
         // Send the updated faculty data as a JSON response
         res.json({
-            message: "Publication mise à jour avec succès!",
+            message: "Faculte mise à jour avec succès!",
             uid: req.params.uid,
             author: "Owner",
         });

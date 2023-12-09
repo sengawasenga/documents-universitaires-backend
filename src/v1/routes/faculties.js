@@ -20,7 +20,7 @@ router.put(
     "/:id",
     isOwner(),
     facultiesMiddleware.handleAllowedMethods,
-    facultiesMiddleware.validateFacultiesData,
+    facultiesMiddleware.validateUpdateFacultiesData,
     facultiesController.updateFaculty
 );
 

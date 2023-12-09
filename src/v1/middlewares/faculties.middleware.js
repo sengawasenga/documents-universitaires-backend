@@ -23,6 +23,25 @@ exports.validateFacultiesData = [
     },
 ];
 
+exports.validateUpdateFacultiesData = [
+    body("name")
+        .isString()
+        .notEmpty()
+        .withMessage("Veuillez fournir un nom pour la faculte."),
+    body("description")
+        .isString()
+        .withMessage(
+            "Veuillez fournir une breve description de votre faculte."
+        ),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+        next();
+    },
+];
+
 exports.handleAllowedMethods = (req, res, next) => {
     const allowedMethods = ["GET", "POST", "PUT", "PATCH"];
 

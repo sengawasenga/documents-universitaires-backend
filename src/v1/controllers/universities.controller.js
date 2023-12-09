@@ -181,7 +181,7 @@ exports.updateUniversity = async (req, res, next) => {
 
         // Send the updated university data as a JSON response
         res.json({
-            message: "Publication mise à jour avec succès!",
+            message: "Universite mise à jour avec succès!",
             uid: req.params.uid,
             author: "Owner",
         });
