@@ -8,6 +8,7 @@ const classroomsRouter = require("./routes/classrooms");
 const academicYearsRouter = require("./routes/academicYears");
 const professorsRouter = require("./routes/professors");
 const studentsRouter = require("./routes/students");
+const coursesRouter = require("./routes/courses");
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.use("/classrooms", classroomsRouter);
 app.use("/academicYears", academicYearsRouter);
 app.use("/professors", professorsRouter);
 app.use("/students", studentsRouter);
+app.use("/courses", coursesRouter);
 
 module.exports = app;
