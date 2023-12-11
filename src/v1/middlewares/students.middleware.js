@@ -9,6 +9,18 @@ exports.validateStudentsData = [
         .isString()
         .notEmpty()
         .withMessage("Veuillez fournir une universite pour l'etudiant."),
+    body("facultyId")
+        .isString()
+        .notEmpty()
+        .withMessage("Veuillez fournir une universite pour l'etudiant."),
+    body("departmentId")
+        .isString()
+        .notEmpty()
+        .withMessage("Veuillez fournir une universite pour l'etudiant."),
+    body("classroomId")
+        .isString()
+        .notEmpty()
+        .withMessage("Veuillez fournir une universite pour l'etudiant."),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

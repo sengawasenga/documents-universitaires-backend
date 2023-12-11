@@ -5,7 +5,8 @@ const paginate = require("../../utils/paginate");
 // create a student
 exports.createStudent = async (req, res, next) => {
     try {
-        const { userId, universityId } = req.body;
+        const { userId, universityId, facultyId, departmentId, classroomId } =
+            req.body;
         const currentDateTime = new Date();
 
         // create a brand new student
@@ -14,6 +15,9 @@ exports.createStudent = async (req, res, next) => {
             userId,
             status: "active",
             universityId,
+            facultyId,
+            departmentId,
+            classroomId,
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
         };
@@ -28,6 +32,9 @@ exports.createStudent = async (req, res, next) => {
                 userId,
                 status: student.status,
                 universityId,
+                facultyId,
+                departmentId,
+                classroomId,
                 createdAt: student.createdAt,
                 updatedAt: student.updatedAt,
             },
@@ -45,7 +52,7 @@ exports.createStudent = async (req, res, next) => {
 // update a specific student
 exports.updateStudent = async (req, res, next) => {
     try {
-        const { universityId } = req.body;
+        const { universityId, facultyId, departmentId, classroomId } = req.body;
         const currentDateTime = new Date();
 
         const studentRef = admin.firestore().collection("students");
@@ -69,6 +76,9 @@ exports.updateStudent = async (req, res, next) => {
 
         const student = {
             universityId,
+            facultyId,
+            departmentId,
+            classroomId,
             updatedAt: currentDateTime,
         };
 
@@ -106,6 +116,21 @@ exports.getStudents = async (req, res) => {
                 .collection("universities")
                 .doc(doc.data().universityId)
                 .get();
+            const facultyRef = await admin
+                .firestore()
+                .collection("faculties")
+                .doc(doc.data().facultyId)
+                .get();
+            const departmentRef = await admin
+                .firestore()
+                .collection("departments")
+                .doc(doc.data().departmentId)
+                .get();
+            const classroomRef = await admin
+                .firestore()
+                .collection("classrooms")
+                .doc(doc.data().classroomId)
+                .get();
 
             const userRef = await admin
                 .firestore()
@@ -124,6 +149,18 @@ exports.getStudents = async (req, res) => {
                     id: doc.data().universityId,
                     name: universityRef.data().name,
                     description: universityRef.data().description,
+                },
+                faculty: {
+                    id: doc.data().facultyId,
+                    name: facultyRef.data().name,
+                },
+                department: {
+                    id: doc.data().departmentId,
+                    name: departmentRef.data().name,
+                },
+                classroom: {
+                    id: doc.data().classroomId,
+                    name: facultyRef.data().name,
                 },
                 createdAt: doc.data().createdAt,
                 updatedAt: doc.data().updatedAt,
@@ -168,6 +205,21 @@ exports.getStudent = async (req, res, next) => {
             .collection("universities")
             .doc(studentDoc.data().universityId)
             .get();
+        const facultyRef = await admin
+            .firestore()
+            .collection("faculties")
+            .doc(studentDoc.data().facultyId)
+            .get();
+        const departmentRef = await admin
+            .firestore()
+            .collection("departments")
+            .doc(studentDoc.data().departmentId)
+            .get();
+        const classroomRef = await admin
+            .firestore()
+            .collection("classrooms")
+            .doc(studentDoc.data().classroomId)
+            .get();
 
         const userRef = await admin
             .firestore()
@@ -188,6 +240,18 @@ exports.getStudent = async (req, res, next) => {
                 name: universityRef.data().name,
                 description: universityRef.data().description,
                 logo: universityRef.data().logo,
+            },
+            faculty: {
+                id: studentDoc.data().facultyId,
+                name: facultyRef.data().name,
+            },
+            department: {
+                id: studentDoc.data().departmentId,
+                name: departmentRef.data().name,
+            },
+            classroom: {
+                id: studentDoc.data().classroomId,
+                name: classroomRef.data().name,
             },
             createdAt: studentData.createdAt,
             updatedAt: studentData.updatedAt,
@@ -214,9 +278,7 @@ exports.deactivateStudent = async (req, res, next) => {
 
         // Check if the student exists
         if (!studentDoc.exists) {
-            res.status(404).send(
-                `Aucun etudiant trouvé avec cet identifiant`
-            );
+            res.status(404).send(`Aucun etudiant trouvé avec cet identifiant`);
             return;
         }
 
@@ -257,9 +319,7 @@ exports.activateStudent = async (req, res, next) => {
 
         // Check if the student exists
         if (!studentDoc.exists) {
-            res.status(404).send(
-                `Aucun etudiant trouvé avec cet identifiant`
-            );
+            res.status(404).send(`Aucun etudiant trouvé avec cet identifiant`);
             return;
         }
 
