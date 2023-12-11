@@ -221,3 +221,63 @@ exports.activateUser = async (req, res, next) => {
         });
     }
 };
+
+// get user documents list
+exports.getDocuments = async (req, res) => {
+    try {
+        const userId = req.params.uid;
+
+        // Retrieve the list of documents for the specific user
+        const documentsRef = admin.firestore().collection("documents");
+        const documentsSnapshot = await documentsRef
+            .where("userId", "==", userId)
+            .get();
+
+        const documents = [];
+
+        // Iterate through the documents
+        for (const documentDoc of documentsSnapshot.docs) {
+            const userRef = await admin
+                .firestore()
+                .collection("users")
+                .doc(documentDoc.data().userId)
+                .get();
+            const universityRef = await admin
+                .firestore()
+                .collection("universities")
+                .doc(documentDoc.data().universityId)
+                .get();
+
+            documents.push({
+                id: documentDoc.id,
+                user: {
+                    id: documentDoc.data().userId,
+                    ...userRef.data(),
+                },
+                university: {
+                    id: documentDoc.data().universityId,
+                    ...universityRef.data(),
+                },
+                ...documentDoc.data(),
+            });
+        }
+
+        // Paginate the list of documents
+        const paginatedDocuments = paginate(
+            documents,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of documents as a JSON response
+        res.json(paginatedDocuments);
+    } catch (error) {
+        console.error("Error retrieving documents:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des documents",
+            error: error.message,
+        });
+    }
+};
+

@@ -47,4 +47,12 @@ router.patch(
     usersController.activateUser
 );
 
+// this route is about: GET api/v1/users/{uid}/documents
+router.get(
+    "/:uid/documents",
+    isAuth(),
+    usersMiddleware.handleAllowedMethods,
+    usersController.getDocuments
+);
+
 module.exports = router;
