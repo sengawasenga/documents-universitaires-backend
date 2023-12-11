@@ -487,3 +487,75 @@ exports.getDepartments = async (req, res) => {
     }
 };
 
+exports.getClassrooms = async (req, res) => {
+    try {
+        const universityId = req.params.id;
+
+        // Retrieve the list of faculties for the specific university
+        const facultiesRef = admin.firestore().collection("faculties");
+        const facultiesSnapshot = await facultiesRef
+            .where("universityId", "==", universityId)
+            .get();
+
+        const classrooms = [];
+
+        // Iterate through the faculties
+        for (const facultyDoc of facultiesSnapshot.docs) {
+            // Retrieve the list of departments for the current faculty
+            const departmentsRef = admin.firestore().collection("departments");
+            const departmentsSnapshot = await departmentsRef
+                .where("facultyId", "==", facultyDoc.id)
+                .get();
+
+            // Iterate through the departments of the current faculty
+            for (const departmentDoc of departmentsSnapshot.docs) {
+                // Retrieve the list of classrooms for the current department
+                const classroomsRef = admin
+                    .firestore()
+                    .collection("classrooms");
+                const classroomsSnapshot = await classroomsRef
+                    .where("departmentId", "==", departmentDoc.id)
+                    .get();
+
+                // Iterate through the classrooms of the current department
+                for (const classroomDoc of classroomsSnapshot.docs) {
+                    const classroomData = {
+                        id: classroomDoc.id,
+                        faculty: {
+                            id: departmentDoc.data().facultyId,
+                            name: facultyDoc.data().name,
+                            description: facultyDoc.data().description,
+                        },
+                        department: {
+                            id: classroomDoc.data().departmentId,
+                            name: departmentDoc.data().name,
+                            name: departmentDoc.data().name,
+                        },
+                        ...classroomDoc.data(),
+                    };
+
+                    classrooms.push(classroomData);
+                }
+            }
+        }
+
+        // Paginate the list of classrooms
+        const paginatedClassrooms = paginate(
+            classrooms,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of classrooms as a JSON response
+        res.json(paginatedClassrooms);
+    } catch (error) {
+        console.error("Error retrieving classrooms:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des auditoires",
+            error: error.message,
+        });
+    }
+};
+
+
