@@ -67,4 +67,12 @@ router.patch(
     universitiesController.activateUniversity
 );
 
+// this route is about: GET api/v1/universities/{id}/faculties
+router.get(
+    "/:id/faculties",
+    isAuth(),
+    universitiesMiddleware.handleAllowedMethods,
+    universitiesController.getFaculties
+);
+
 module.exports = router;

@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const paginate = require("../../utils/paginate");
 
 // create an university
-exports.createUniversity = async (req, res, next) => {
+exports.createUniversity = async (req, res) => {
     try {
         const { name, address, description } = req.body;
         const bucket = admin.storage().bucket();
@@ -94,7 +94,7 @@ exports.createUniversity = async (req, res, next) => {
 };
 
 // update a specific university
-exports.updateUniversity = async (req, res, next) => {
+exports.updateUniversity = async (req, res) => {
     try {
         const { name, address, description } = req.body;
         const bucket = admin.storage().bucket();
@@ -248,7 +248,7 @@ exports.getUniversities = async (req, res) => {
 };
 
 // getting a specific university informations
-exports.getUniversity = async (req, res, next) => {
+exports.getUniversity = async (req, res) => {
     try {
         // Retrieve the university data from Cloud Firestore
         const universitiesRef = admin.firestore().collection("universities");
@@ -295,7 +295,7 @@ exports.getUniversity = async (req, res, next) => {
     }
 };
 
-exports.deactivateUniversity = async (req, res, next) => {
+exports.deactivateUniversity = async (req, res) => {
     const currentDateTime = new Date();
 
     try {
@@ -338,7 +338,7 @@ exports.deactivateUniversity = async (req, res, next) => {
     }
 };
 
-exports.activateUniversity = async (req, res, next) => {
+exports.activateUniversity = async (req, res) => {
     const currentDateTime = new Date();
 
     try {
@@ -380,3 +380,54 @@ exports.activateUniversity = async (req, res, next) => {
         });
     }
 };
+
+exports.getFaculties = async (req, res) => {
+    try {
+        // Retrieve the list of registered faculties from Cloud Firestore
+        const facultiesRef = admin.firestore().collection("faculties");
+        const facultiesSnapshot = await facultiesRef
+            .where("universityId", "==", req.params.id)
+            .get();
+        const faculties = [];
+
+        // Loop through each document and add it to the faculties array
+        for (const doc of facultiesSnapshot.docs) {
+            const universityRef = await admin
+                .firestore()
+                .collection("universities")
+                .doc(doc.data().universityId)
+                .get();
+
+            faculties.push({
+                id: doc.id,
+                name: doc.data().name,
+                description: doc.data().description,
+                status: doc.data().status,
+                university: {
+                    id: doc.data().universityId,
+                    name: universityRef.data().name,
+                    description: universityRef.data().description,
+                },
+                createdAt: doc.data().createdAt,
+                updatedAt: doc.data().updatedAt,
+            });
+        }
+
+        // Paginate the list of course
+        const paginatedFaculties = paginate(
+            faculties,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of Faculties as a JSON response
+        res.json(paginatedFaculties);
+    } catch (error) {
+        console.error("Error retrieving Facultiess list:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des facultes",
+            error: error.message,
+        });
+    }
+}
