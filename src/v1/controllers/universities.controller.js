@@ -558,4 +558,67 @@ exports.getClassrooms = async (req, res) => {
     }
 };
 
+exports.getProfessors = async (req, res) => {
+    try {
+        const universityId = req.params.id;
+
+        // Retrieve the list of professors for the specific university
+        const professorsRef = admin.firestore().collection("professors");
+        const professorsSnapshot = await professorsRef
+            .where("universityId", "==", universityId)
+            .get();
+
+        const professors = [];
+
+        // Iterate through the professors
+        for (const professorDoc of professorsSnapshot.docs) {
+            const universityRef = await admin
+                .firestore()
+                .collection("universities")
+                .doc(professorDoc.data().universityId)
+                .get();
+
+            const userRef = await admin
+                .firestore()
+                .collection("users")
+                .doc(professorDoc.data().userId)
+                .get();
+
+            professors.push({
+                id: professorDoc.id,
+                status: professorDoc.data().status,
+                user: {
+                    id: professorDoc.data().universityId,
+                    ...userRef.data(),
+                },
+                university: {
+                    id: professorDoc.data().universityId,
+                    name: universityRef.data().name,
+                    description: universityRef.data().description,
+                },
+                createdAt: professorDoc.data().createdAt,
+                updatedAt: professorDoc.data().updatedAt,
+            });
+        }
+
+        // Paginate the list of professors
+        const paginatedProfessors = paginate(
+            professors,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of professors as a JSON response
+        res.json(paginatedProfessors);
+    } catch (error) {
+        console.error("Error retrieving professors:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des professeurs",
+            error: error.message,
+        });
+    }
+};
+
+
 
