@@ -56,4 +56,12 @@ router.patch(
     professorsController.activateProfessor
 );
 
+// this route is about: GET api/v1/professors/{id}/courses
+router.get(
+    "/:id/courses",
+    isAuth(),
+    professorsMiddleware.handleAllowedMethods,
+    professorsController.getCourses
+);
+
 module.exports = router;

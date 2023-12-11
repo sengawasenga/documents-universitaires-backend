@@ -292,3 +292,58 @@ exports.activateProfessor = async (req, res, next) => {
         });
     }
 };
+
+// get a list of course
+exports.getCourses = async (req, res) => {
+    try {
+        // Retrieve the list of registered course from Cloud Firestore
+        const courseRef = admin.firestore().collection("courses");
+        const courseSnapshot = await courseRef.where("professorId", "==", req.params.id).get();
+        const course = [];
+
+        // Loop through each document and add it to the courses array
+        for (const doc of courseSnapshot.docs) {
+            const classroomRef = await admin
+                .firestore()
+                .collection("classrooms")
+                .doc(doc.data().classroomId)
+                .get();
+
+            const professorRef = await admin
+                .firestore()
+                .collection("professors")
+                .doc(doc.data().professorId)
+                .get();
+
+            course.push({
+                id: doc.id,
+                classroom: {
+                    id: doc.data().classroomId,
+                    ...classroomRef.data(),
+                },
+                professor: {
+                    id: doc.data().professorId,
+                    ...professorRef.data(),
+                },
+                ...doc.data()
+            });
+        }
+
+        // Paginate the list of course
+        const paginatedCourse = paginate(
+            course,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of course as a JSON response
+        res.json(paginatedCourse);
+    } catch (error) {
+        console.error("Error retrieving courses list:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des cours",
+            error: error.message,
+        });
+    }
+};
