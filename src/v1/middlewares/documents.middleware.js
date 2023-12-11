@@ -13,6 +13,10 @@ exports.validateDocumentsData = [
         .isString()
         .notEmpty()
         .withMessage("Veuillez fournir proprietaire de document."),
+    body("universityId")
+        .isString()
+        .notEmpty()
+        .withMessage("Veuillez fournir l'universite."),
     (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

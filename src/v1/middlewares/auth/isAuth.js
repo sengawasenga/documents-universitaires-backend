@@ -6,7 +6,7 @@ const verifyIdToken = async (token) => {
         return decodedToken;
     } catch (error) {
         console.error("Error verifying the token", error);
-        throw new Error("La vérification du token a échoué");
+        throw new Error("Le token a expiré ou n'est pas valide");
     }
 };
 

@@ -6,7 +6,7 @@ const verifyIdToken = async (token) => {
         return decodedToken;
     } catch (error) {
         console.error("Error verifying the token", error);
-        throw new Error("La vérification du token a échoué");
+        throw new Error("Le token a expiré ou n'est pas valide");
     }
 };
 
@@ -56,11 +56,18 @@ const isStudent = () => {
             req.user = userData;
             next();
         } catch (error) {
-            console.error(error);
-            res.status(401).send({
-                message:
-                    "Cette action n'est pas autorisée pour cet utilisateur.",
-            });
+            console.error("Authentication error", error);
+            if (error.code == "auth/id-token-expired") {
+                return res.status(401).send({
+                    message: "Votre token a expiré",
+                });
+            } else {
+                return res.status(401).send({
+                    message:
+                        "Une erreur est survenue lors de la verification du token.",
+                    error: error.message,
+                });
+            }
         }
     };
 };

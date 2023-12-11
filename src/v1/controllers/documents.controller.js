@@ -4,23 +4,34 @@ const paginate = require("../../utils/paginate");
 
 const getStudentData = async (userId) => {
     try {
-        // Retrieve user data from the 'users' collection using universityId
+        console.log('userId', userId);
+        if (!userId) {
+            throw new Error("Invalid userId provided");
+        }
+
+        // Retrieve user data from the 'users' collection using userId
         const usersRef = admin.firestore().collection("users");
         const userSnapshot = await usersRef.doc(userId).get();
-        const studentDoc = await admin
-            .firestore()
-            .collection("students")
-            .where("userId", "==", userId)
-            .get();
 
         if (userSnapshot.exists) {
-            const combinedData = {
-                userId: userId,
-                studentId: studentDoc.docs[0].id,
-                ...userSnapshot.data(),
-            };
+            // Retrieve student data using userId in the 'students' collection
+            const studentSnapshot = await admin
+                .firestore()
+                .collection("students")
+                .where("userId", "==", userId)
+                .get();
 
-            return combinedData;
+            if (!studentSnapshot.empty) {
+                const combinedData = {
+                    userId: userId,
+                    studentId: studentSnapshot.docs[0].id,
+                    ...userSnapshot.data(),
+                };
+
+                return combinedData;
+            } else {
+                throw new Error("Student data not found for the given userId");
+            }
         } else {
             throw new Error("User data not found for the given userId");
         }
@@ -96,10 +107,13 @@ const getFacultyData = async (universityId) => {
             .where("status", "==", "active")
             .get();
 
-        if (facultySnapshot.exists) {
+        if (!facultySnapshot.empty) {
+            // Access the first document in the QuerySnapshot
+            const firstFacultyDoc = facultySnapshot.docs[0];
+
             const combinedData = {
-                facultyId: facultySnapshot.id,
-                ...facultySnapshot.data(),
+                facultyId: firstFacultyDoc.id,
+                ...firstFacultyDoc.data(),
             };
 
             return combinedData;
@@ -236,6 +250,7 @@ exports.createDocument = async (req, res, next) => {
                 name,
                 status: "active",
                 userId,
+                universityId,
                 documentType,
                 image: [],
                 createdAt: currentDateTime,
@@ -291,6 +306,7 @@ exports.createDocument = async (req, res, next) => {
                 name,
                 status: "active",
                 userId,
+                universityId,
                 documentType,
                 releve: {
                     id: uuidv4(),
@@ -354,13 +370,21 @@ exports.getDocuments = async (req, res) => {
                 .collection("users")
                 .doc(doc.data().userId)
                 .get();
+            const universityRef = await admin
+                .firestore()
+                .collection("universities")
+                .doc(doc.data().universityId)
+                .get();
 
             documents.push({
                 id: doc.id,
                 user: {
                     id: doc.data().userId,
-                    name: userRef.data().name,
-                    firstName: userRef.data().firstName,
+                    ...userRef.data(),
+                },
+                university: {
+                    id: doc.data().universityId,
+                    ...universityRef.data(),
                 },
                 ...doc.data(),
             });
@@ -404,16 +428,24 @@ exports.getDocument = async (req, res, next) => {
             .collection("users")
             .doc(documentDoc.data().userId)
             .get();
+        const universityRef = await admin
+            .firestore()
+            .collection("universities")
+            .doc(documentDoc.data().universityId)
+            .get();
 
         // Combine the document record and document data into a single object
         const document = {
             id: documentDoc.id,
             user: {
                 id: documentDoc.data().userId,
-                name: userRef.data().name,
-                firstName: userRef.data().firstName,
+                ...userRef.data(),
             },
-            ...documentData
+            university: {
+                id: documentDoc.data().universityId,
+                ...userRef.data(),
+            },
+            ...documentData,
         };
 
         // Send the document object as a JSON response

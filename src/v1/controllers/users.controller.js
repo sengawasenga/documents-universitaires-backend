@@ -44,8 +44,6 @@ exports.getUsers = async (req, res, next) => {
 // getting a specific user informations
 exports.getUser = async (req, res, next) => {
     try {
-        // Retrieve the user record from Firebase Authentication
-        const userRecord = await admin.auth().getUser(req.params.uid);
 
         // Retrieve the user data from Cloud Firestore
         const usersRef = admin.firestore().collection("users");
@@ -60,7 +58,7 @@ exports.getUser = async (req, res, next) => {
 
         // Combine the user record and user data into a single object
         const user = {
-            uid: userRecord.uid,
+            uid: userDoc.id,
             name: userData.name,
             firstName: userData.firstName,
             username: userData.username,
