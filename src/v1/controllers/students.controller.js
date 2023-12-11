@@ -172,7 +172,7 @@ exports.getStudent = async (req, res, next) => {
         const userRef = await admin
             .firestore()
             .collection("users")
-            .doc(doc.data().userId)
+            .doc(studentDoc.data().userId)
             .get();
 
         // Combine the student record and student data into a single object
@@ -180,7 +180,7 @@ exports.getStudent = async (req, res, next) => {
             id: studentDoc.id,
             status: studentData.status,
             user: {
-                id: doc.data().universityId,
+                id: studentDoc.data().universityId,
                 ...userRef.data(),
             },
             university: {
