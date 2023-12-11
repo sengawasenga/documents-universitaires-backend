@@ -190,11 +190,11 @@ exports.getCourse = async (req, res, next) => {
             name: courseData.name,
             ponderation: courseData.ponderation,
             classroom: {
-                id: doc.data().classroomId,
+                id: courseData.classroomId,
                 ...classroomRef.data(),
             },
             professor: {
-                id: doc.data().professorId,
+                id: courseData.professorId,
                 ...professorRef.data(),
             },
             createdAt: courseData.createdAt,
