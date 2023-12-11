@@ -431,3 +431,59 @@ exports.getFaculties = async (req, res) => {
         });
     }
 }
+
+exports.getDepartments = async (req, res) => {
+    try {
+        const universityId = req.params.id;
+
+        // Retrieve the list of faculties for the specific university
+        const facultiesRef = admin.firestore().collection("faculties");
+        const facultiesSnapshot = await facultiesRef
+            .where("universityId", "==", universityId)
+            .get();
+
+        const departments = [];
+
+        // Iterate through the faculties
+        for (const facultyDoc of facultiesSnapshot.docs) {
+            // Retrieve the list of departments for the current faculty
+            const departmentsRef = admin.firestore().collection("departments");
+            const departmentsSnapshot = await departmentsRef
+                .where("facultyId", "==", facultyDoc.id)
+                .get();
+
+            // Iterate through the departments of the current faculty
+            for (const departmentDoc of departmentsSnapshot.docs) {
+                const departmentData = {
+                    id: departmentDoc.id,
+                    faculty: {
+                        id: departmentDoc.data().facultyId,
+                        name: facultyDoc.data().name,
+                        description: facultyDoc.data().description,
+                    },
+                    ...departmentDoc.data(),
+                };
+
+                departments.push(departmentData);
+            }
+        }
+
+        // Paginate the list of departments
+        const paginatedDepartments = paginate(
+            departments,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of departments as a JSON response
+        res.json(paginatedDepartments);
+    } catch (error) {
+        console.error("Error retrieving departments:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des départements",
+            error: error.message,
+        });
+    }
+};
+
