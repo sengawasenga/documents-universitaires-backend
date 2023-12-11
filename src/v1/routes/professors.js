@@ -72,4 +72,12 @@ router.get(
     professorsController.getClassrooms
 );
 
+// this route is about: GET api/v1/professors/{id}/students
+router.get(
+    "/:id/students",
+    isAuth(),
+    professorsMiddleware.handleAllowedMethods,
+    professorsController.getStudents
+);
+
 module.exports = router;

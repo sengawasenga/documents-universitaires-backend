@@ -9,10 +9,7 @@ exports.createProfessor = async (req, res, next) => {
         const currentDateTime = new Date();
 
         // create a brand new professor
-        const professorRef = admin
-            .firestore()
-            .collection("professors")
-            .doc();
+        const professorRef = admin.firestore().collection("professors").doc();
         const professor = {
             userId,
             status: "active",
@@ -109,7 +106,7 @@ exports.getProfessors = async (req, res) => {
                 .collection("universities")
                 .doc(doc.data().universityId)
                 .get();
-            
+
             const userRef = await admin
                 .firestore()
                 .collection("users")
@@ -121,7 +118,7 @@ exports.getProfessors = async (req, res) => {
                 status: doc.data().status,
                 user: {
                     id: doc.data().universityId,
-                    ...userRef.data()
+                    ...userRef.data(),
                 },
                 university: {
                     id: doc.data().universityId,
@@ -298,7 +295,9 @@ exports.getCourses = async (req, res) => {
     try {
         // Retrieve the list of registered course from Cloud Firestore
         const courseRef = admin.firestore().collection("courses");
-        const courseSnapshot = await courseRef.where("professorId", "==", req.params.id).get();
+        const courseSnapshot = await courseRef
+            .where("professorId", "==", req.params.id)
+            .get();
         const course = [];
 
         // Loop through each document and add it to the courses array
@@ -325,7 +324,7 @@ exports.getCourses = async (req, res) => {
                     id: doc.data().professorId,
                     ...professorRef.data(),
                 },
-                ...doc.data()
+                ...doc.data(),
             });
         }
 
@@ -370,7 +369,9 @@ exports.getClassrooms = async (req, res) => {
                         ...classroomDoc.data(),
                     };
 
-                    if (!classrooms.some(item => item.id == classroomData.id)) {
+                    if (
+                        !classrooms.some((item) => item.id == classroomData.id)
+                    ) {
                         classrooms.push(classroomData);
                     }
                 }
@@ -386,6 +387,119 @@ exports.getClassrooms = async (req, res) => {
 
         // Send the paginated list of classrooms as a JSON response
         res.json(paginatedClassrooms);
+    } catch (error) {
+        console.error("Error retrieving classrooms:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des auditoires",
+            error: error.message,
+        });
+    }
+};
+
+// get a list of students
+exports.getStudents = async (req, res) => {
+    try {
+        // Retrieve the list of registered course from Cloud Firestore
+        const courseRef = admin.firestore().collection("courses");
+        const courseSnapshot = await courseRef
+            .where("professorId", "==", req.params.id)
+            .get();
+        const classrooms = [];
+        const students = [];
+
+        for (const doc of courseSnapshot.docs) {
+            // Retrieve the list of registered classrooms from Cloud Firestore
+            const classroomsRef = admin.firestore().collection("classrooms");
+            const classroomsSnapshot = await classroomsRef.get();
+
+            for (const classroomDoc of classroomsSnapshot.docs) {
+                if (classroomDoc.id == doc.data().classroomId) {
+                    const classroomData = {
+                        id: doc.data().classroomId,
+                    };
+
+                    if (
+                        !classrooms.some((item) => item.id == classroomData.id)
+                    ) {
+                        classrooms.push(classroomData);
+                    }
+                }
+            }
+        }
+
+        // get the students list
+        const studentRef = admin.firestore().collection("students");
+        const studentSnapshot = await studentRef.get();
+
+        for (const doc of studentSnapshot.docs) {
+            const universityRef = await admin
+                .firestore()
+                .collection("universities")
+                .doc(doc.data().universityId)
+                .get();
+            const facultyRef = await admin
+                .firestore()
+                .collection("faculties")
+                .doc(doc.data().facultyId)
+                .get();
+            const departmentRef = await admin
+                .firestore()
+                .collection("departments")
+                .doc(doc.data().departmentId)
+                .get();
+            const classroomRef = await admin
+                .firestore()
+                .collection("classrooms")
+                .doc(doc.data().classroomId)
+                .get();
+
+            const userRef = await admin
+                .firestore()
+                .collection("users")
+                .doc(doc.data().userId)
+                .get();
+
+            if (classrooms.some((item) => item.id == doc.data().classroomId)) {
+                students.push({
+                    id: doc.id,
+                    status: doc.data().status,
+                    user: {
+                        id: doc.data().universityId,
+                        ...userRef.data(),
+                    },
+                    university: {
+                        id: doc.data().universityId,
+                        name: universityRef.data().name,
+                        description: universityRef.data().description,
+                    },
+                    faculty: {
+                        id: doc.data().facultyId,
+                        name: facultyRef.data().name,
+                    },
+                    department: {
+                        id: doc.data().departmentId,
+                        name: departmentRef.data().name,
+                    },
+                    classroom: {
+                        id: doc.data().classroomId,
+                        name: facultyRef.data().name,
+                    },
+                    createdAt: doc.data().createdAt,
+                    updatedAt: doc.data().updatedAt,
+                });
+            }
+        }
+
+        // Paginate the list of students
+        const paginatedStudents = paginate(
+            students,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of Students as a JSON response
+        res.json(paginatedStudents);
     } catch (error) {
         console.error("Error retrieving classrooms:", error);
         res.status(500).send({
