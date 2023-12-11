@@ -347,3 +347,51 @@ exports.getCourses = async (req, res) => {
         });
     }
 };
+
+// get a list of classrooms
+exports.getClassrooms = async (req, res) => {
+    try {
+        // Retrieve the list of registered course from Cloud Firestore
+        const courseRef = admin.firestore().collection("courses");
+        const courseSnapshot = await courseRef
+            .where("professorId", "==", req.params.id)
+            .get();
+        const classrooms = [];
+
+        for (const doc of courseSnapshot.docs) {
+            // Retrieve the list of registered classrooms from Cloud Firestore
+            const classroomsRef = admin.firestore().collection("classrooms");
+            const classroomsSnapshot = await classroomsRef.get();
+
+            for (const classroomDoc of classroomsSnapshot.docs) {
+                if (classroomDoc.id == doc.data().classroomId) {
+                    const classroomData = {
+                        id: doc.data().classroomId,
+                        ...classroomDoc.data(),
+                    };
+
+                    if (!classrooms.some(item => item.id == classroomData.id)) {
+                        classrooms.push(classroomData);
+                    }
+                }
+            }
+        }
+
+        // Paginate the list of classrooms
+        const paginatedClassrooms = paginate(
+            classrooms,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of classrooms as a JSON response
+        res.json(paginatedClassrooms);
+    } catch (error) {
+        console.error("Error retrieving classrooms:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des auditoires",
+            error: error.message,
+        });
+    }
+};
