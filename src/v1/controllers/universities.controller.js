@@ -620,5 +620,93 @@ exports.getProfessors = async (req, res) => {
     }
 };
 
+exports.getStudents = async (req, res) => {
+    try {
+        const universityId = req.params.id;
+
+        // Retrieve the list of students for the specific university
+        const studentsRef = admin.firestore().collection("students");
+        const studentsSnapshot = await studentsRef
+            .where("universityId", "==", universityId)
+            .get();
+
+        const students = [];
+
+        // Iterate through the students
+        for (const studentDoc of studentsSnapshot.docs) {
+            const universityRef = await admin
+                .firestore()
+                .collection("universities")
+                .doc(studentDoc.data().universityId)
+                .get();
+            const facultyRef = await admin
+                .firestore()
+                .collection("faculties")
+                .doc(studentDoc.data().facultyId)
+                .get();
+            const departmentRef = await admin
+                .firestore()
+                .collection("departments")
+                .doc(studentDoc.data().departmentId)
+                .get();
+            const classroomRef = await admin
+                .firestore()
+                .collection("classrooms")
+                .doc(studentDoc.data().classroomId)
+                .get();
+
+            const userRef = await admin
+                .firestore()
+                .collection("users")
+                .doc(studentDoc.data().userId)
+                .get();
+
+            students.push({
+                id: studentDoc.id,
+                status: studentDoc.data().status,
+                user: {
+                    id: studentDoc.data().universityId,
+                    ...userRef.data(),
+                },
+                university: {
+                    id: studentDoc.data().universityId,
+                    name: universityRef.data().name,
+                    description: universityRef.data().description,
+                },
+                faculty: {
+                    id: studentDoc.data().facultyId,
+                    name: facultyRef.data().name,
+                },
+                department: {
+                    id: studentDoc.data().departmentId,
+                    name: departmentRef.data().name,
+                },
+                classroom: {
+                    id: studentDoc.data().classroomId,
+                    name: classroomRef.data().name,
+                },
+                createdAt: studentDoc.data().createdAt,
+                updatedAt: studentDoc.data().updatedAt,
+            });
+        }
+
+        // Paginate the list of students
+        const paginatedStudents = paginate(
+            students,
+            req.query.page,
+            req.query.limit
+        );
+
+        // Send the paginated list of students as a JSON response
+        res.json(paginatedStudents);
+    } catch (error) {
+        console.error("Error retrieving students:", error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de la récupération de la liste des étudiants",
+            error: error.message,
+        });
+    }
+};
 
 

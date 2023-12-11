@@ -160,7 +160,7 @@ exports.getStudents = async (req, res) => {
                 },
                 classroom: {
                     id: doc.data().classroomId,
-                    name: facultyRef.data().name,
+                    name: classroomRef.data().name,
                 },
                 createdAt: doc.data().createdAt,
                 updatedAt: doc.data().updatedAt,
