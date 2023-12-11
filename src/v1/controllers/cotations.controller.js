@@ -8,6 +8,23 @@ exports.createCotation = async (req, res, next) => {
         const { rating, total, studentId, courseId, academicYearId } = req.body;
         const currentDateTime = new Date();
 
+        // check if this user already has a cotation on this course
+        const cotationCheck = await admin
+            .firestore()
+            .collection("cotations")
+            .where("studentId", "==", studentId)
+            .where("courseId", "==", courseId)
+            .where("academicYearId", "==", academicYearId)
+            .get()
+        
+
+        if (!cotationCheck.empty) {
+            res.status(400).send({
+                message: `Cet etudiant a déjà été coté dans ce cours`,
+            });
+            return;
+        }
+
         const cotationRef = admin.firestore().collection("cotations").doc();
         const cotation = {
             rating,
@@ -48,13 +65,13 @@ exports.createCotation = async (req, res, next) => {
 // update a specific cotation
 exports.updateCotation = async (req, res, next) => {
     try {
-        const { rating, total, studentId, courseId, academicYearId } = req.body;
+        const { rating, total } = req.body;
         const currentDateTime = new Date();
 
-        const cotationRef = admin.firestore().collection("universities");
+        const cotationRef = admin.firestore().collection("cotations");
         const cotationDoc = await cotationRef.doc(req.params.id).get();
 
-        // Check if the university exists
+        // Check if the cotation exists
         if (!cotationDoc.exists) {
             res.status(404).send({
                 message: `Cette cotation n'a pas été trouvée`,
@@ -65,9 +82,6 @@ exports.updateCotation = async (req, res, next) => {
         const cotation = {
             rating,
             total,
-            studentId,
-            courseId,
-            academicYearId,
             updatedAt: currentDateTime,
         };
 
@@ -77,7 +91,7 @@ exports.updateCotation = async (req, res, next) => {
         // Send the updated cotation data as a JSON response
         res.json({
             message: "Cotation mise à jour avec succès!",
-            uid: req.params.uid,
+            id: req.params.id,
             author: "Owner",
         });
     } catch (error) {
@@ -175,19 +189,19 @@ exports.getCotation = async (req, res, next) => {
         const courseRef = await admin
             .firestore()
             .collection("courses")
-            .doc(doc.data().courseId)
+            .doc(cotationData.courseId)
             .get();
 
         const academicYearRef = await admin
             .firestore()
             .collection("academicYears")
-            .doc(doc.data().academicYearId)
+            .doc(cotationData.academicYearId)
             .get();
 
         const studentRef = await admin
             .firestore()
             .collection("students")
-            .doc(doc.data().studentId)
+            .doc(cotationData.studentId)
             .get();
 
         // Combine the cotation record and cotation data into a single object
@@ -196,15 +210,15 @@ exports.getCotation = async (req, res, next) => {
             rating: cotationData.rating,
             total: cotationData.total,
             course: {
-                id: cotationDoc.courseId,
+                id: cotationData.courseId,
                 ...courseRef.data(),
             },
             academicYear: {
-                id: cotationDoc.academicYearId,
+                id: cotationData.academicYearId,
                 ...academicYearRef.data(),
             },
             student: {
-                id: cotationDoc.studentId,
+                id: cotationData.studentId,
                 ...studentRef.data(),
             },
             createdAt: cotationData.createdAt,

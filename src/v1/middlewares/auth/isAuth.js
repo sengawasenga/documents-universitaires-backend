@@ -50,11 +50,18 @@ const isAuth = () => {
             next();
         } catch (error) {
             console.error("Authentication error", error);
-            return res.status(401).send({
-                message:
-                    "Une erreur est survenue lors de la verification du token.",
-                error: error.message || "La vérification du token a échoué",
-            });
+            if (error.code == "auth/id-token-expired") {
+                return res.status(401).send({
+                    message:
+                        "Votre token a expiré",
+                });
+            } else {
+                return res.status(401).send({
+                    message:
+                        "Une erreur est survenue lors de la verification du token.",
+                    error: error.message
+                });
+            }
         }
     };
 };
