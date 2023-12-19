@@ -13,7 +13,7 @@ const verifyIdToken = async (token) => {
 const isAdmin = () => {
     return async (req, res, next) => {
         try {
-            const token = req.headers.authorization.split(" ")[1];
+            const token = req.headers.authorization;
 
             if (!token) {
                 console.error("No token provided");
@@ -23,7 +23,7 @@ const isAdmin = () => {
                 });
             }
 
-            const decodedToken = await verifyIdToken(token);
+            const decodedToken = await verifyIdToken(token.split(" ")[1]);
 
             if (!decodedToken) {
                 console.error(`Invalid ID token provided`);
