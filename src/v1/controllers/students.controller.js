@@ -14,6 +14,7 @@ exports.createStudent = async (req, res, next) => {
         const student = {
             userId,
             status: "active",
+            inscriptionStatus: "in-progress",
             universityId,
             facultyId,
             departmentId,
@@ -31,6 +32,7 @@ exports.createStudent = async (req, res, next) => {
                 id: studentRef.id,
                 userId,
                 status: student.status,
+                inscriptionStatus: student.inscriptionStatus,
                 universityId,
                 facultyId,
                 departmentId,
@@ -339,6 +341,75 @@ exports.activateStudent = async (req, res, next) => {
         res.status(200).send({
             message: "Etudiant activé avec succès",
             author: "Owner",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de l'activation de l'etudiant",
+            error: error.message,
+        });
+    }
+};
+
+exports.approveStudent = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const id = req.params.id;
+        const studentsRef = admin.firestore().collection("students");
+        const studentDoc = await studentsRef.doc(id).get();
+
+        // Check if the student exists
+        if (!studentDoc.exists) {
+            res.status(404).send(`Aucun etudiant trouvé avec cet identifiant`);
+            return;
+        }
+
+        // approve the student
+        await studentsRef
+            .doc(id)
+            .update({ inscriptionStatus: "approved", updatedAt: currentDateTime });
+
+        res.status(200).send({
+            message: "Etudiant approuvé avec succès",
+            author: "Admin",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de l'activation de l'etudiant",
+            error: error.message,
+        });
+    }
+};
+
+exports.declineStudent = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const id = req.params.id;
+        const studentsRef = admin.firestore().collection("students");
+        const studentDoc = await studentsRef.doc(id).get();
+
+        // Check if the student exists
+        if (!studentDoc.exists) {
+            res.status(404).send(`Aucun etudiant trouvé avec cet identifiant`);
+            return;
+        }
+
+        // approve the student
+        await studentsRef
+            .doc(id)
+            .update({
+                inscriptionStatus: "declined",
+                updatedAt: currentDateTime,
+            });
+
+        res.status(200).send({
+            message: "Etudiant Décliné avec succès",
+            author: "Admin",
         });
     } catch (error) {
         console.error(error);

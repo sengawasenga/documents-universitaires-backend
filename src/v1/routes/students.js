@@ -2,6 +2,7 @@ const express = require("express");
 const studentsMiddleware = require("../middlewares/students.middleware");
 const studentsController = require("../controllers/students.controller");
 const { isStudent } = require("../middlewares/auth/isStudent");
+const { isOwner } = require("../middlewares/auth/isOwner");
 const { isAuth } = require("../middlewares/auth/isAuth");
 
 const router = express.Router();
@@ -54,6 +55,22 @@ router.patch(
     isStudent(),
     studentsMiddleware.handleAllowedMethods,
     studentsController.activateStudent
+);
+
+// this route is about: PATCH api/v1/students/{id}/approve
+router.patch(
+    "/:id/approve",
+    isOwner(),
+    studentsMiddleware.handleAllowedMethods,
+    studentsController.approveStudent
+);
+
+// this route is about: PATCH api/v1/students/{id}/decline
+router.patch(
+    "/:id/decline",
+    isOwner(),
+    studentsMiddleware.handleAllowedMethods,
+    studentsController.declineStudent
 );
 
 module.exports = router;
