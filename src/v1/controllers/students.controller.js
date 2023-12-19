@@ -143,6 +143,7 @@ exports.getStudents = async (req, res) => {
             student.push({
                 id: doc.id,
                 status: doc.data().status,
+                inscriptionStatus: doc.data().inscriptionStatus,
                 user: {
                     id: doc.data().universityId,
                     ...userRef.data(),
@@ -233,6 +234,7 @@ exports.getStudent = async (req, res, next) => {
         const student = {
             id: studentDoc.id,
             status: studentData.status,
+            inscriptionStatus: studentData.inscriptionStatus,
             user: {
                 id: studentDoc.data().universityId,
                 ...userRef.data(),

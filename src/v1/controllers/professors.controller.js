@@ -118,6 +118,7 @@ exports.getProfessors = async (req, res) => {
             professor.push({
                 id: doc.id,
                 status: doc.data().status,
+                inscriptionStatus: doc.data().inscriptionStatus,
                 user: {
                     id: doc.data().universityId,
                     ...userRef.data(),
@@ -181,6 +182,7 @@ exports.getProfessor = async (req, res, next) => {
         const professor = {
             id: professorDoc.id,
             status: professorData.status,
+            inscriptionStatus: professorData.inscriptionStatus,
             user: {
                 id: professorDoc.data().universityId,
                 ...userRef.data(),
