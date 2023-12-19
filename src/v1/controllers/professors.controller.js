@@ -13,6 +13,7 @@ exports.createProfessor = async (req, res, next) => {
         const professor = {
             userId,
             status: "active",
+            inscriptionStatus: "in-progress",
             universityId,
             createdAt: currentDateTime,
             updatedAt: currentDateTime,
@@ -27,6 +28,7 @@ exports.createProfessor = async (req, res, next) => {
                 id: professorRef.id,
                 userId,
                 status: professor.status,
+                inscriptionStatus: professor.inscriptionStatus,
                 universityId,
                 createdAt: professor.createdAt,
                 updatedAt: professor.updatedAt,
@@ -279,6 +281,79 @@ exports.activateProfessor = async (req, res, next) => {
         res.status(200).send({
             message: "Professeur activé avec succès",
             author: "Owner",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de l'activation du professeur",
+            error: error.message,
+        });
+    }
+};
+
+exports.approveProfessor = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const id = req.params.id;
+        const professorsRef = admin.firestore().collection("professors");
+        const professorDoc = await professorsRef.doc(id).get();
+
+        // Check if the professor exists
+        if (!professorDoc.exists) {
+            res.status(404).send(
+                `Aucun professeur trouvé avec cet identifiant`
+            );
+            return;
+        }
+
+        // activate the professor
+        await professorsRef
+            .doc(id)
+            .update({ inscriptionStatus: "approved", updatedAt: currentDateTime });
+
+        res.status(200).send({
+            message: "Professeur approuvé avec succès",
+            author: "Admin",
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({
+            message:
+                "Une erreur est survenue lors de l'activation du professeur",
+            error: error.message,
+        });
+    }
+};
+
+exports.declineProfessor = async (req, res, next) => {
+    const currentDateTime = new Date();
+
+    try {
+        const id = req.params.id;
+        const professorsRef = admin.firestore().collection("professors");
+        const professorDoc = await professorsRef.doc(id).get();
+
+        // Check if the professor exists
+        if (!professorDoc.exists) {
+            res.status(404).send(
+                `Aucun professeur trouvé avec cet identifiant`
+            );
+            return;
+        }
+
+        // activate the professor
+        await professorsRef
+            .doc(id)
+            .update({
+                inscriptionStatus: "declined",
+                updatedAt: currentDateTime,
+            });
+
+        res.status(200).send({
+            message: "Professeur décliné avec succès",
+            author: "Admin",
         });
     } catch (error) {
         console.error(error);

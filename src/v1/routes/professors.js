@@ -3,6 +3,7 @@ const professorsMiddleware = require("../middlewares/professors.middleware");
 const professorsController = require("../controllers/professors.controller");
 const { isProfessor } = require("../middlewares/auth/isProfessor");
 const { isAuth } = require("../middlewares/auth/isAuth");
+const { isOwner } = require("../middlewares/auth/isOwner");
 
 const router = express.Router();
 
@@ -54,6 +55,22 @@ router.patch(
     isProfessor(),
     professorsMiddleware.handleAllowedMethods,
     professorsController.activateProfessor
+);
+
+// this route is about: PATCH api/v1/professors/{id}/approve
+router.patch(
+    "/:id/approve",
+    isOwner(),
+    professorsMiddleware.handleAllowedMethods,
+    professorsController.approveProfessor
+);
+
+// this route is about: PATCH api/v1/professors/{id}/decline
+router.patch(
+    "/:id/decline",
+    isOwner(),
+    professorsMiddleware.handleAllowedMethods,
+    professorsController.declineProfessor
 );
 
 // this route is about: GET api/v1/professors/{id}/courses
